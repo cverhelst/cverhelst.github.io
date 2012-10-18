@@ -11,3 +11,4 @@
   Components: Modernizr, jQuery
   Software: Vim
   Background: http://subtlepatterns.com
+  Favicon: http://www.catb.org/hacker-emblem/
