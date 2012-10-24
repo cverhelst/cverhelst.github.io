@@ -44,10 +44,7 @@ aside.sidebar {
     color: inherit;
     @include transition(color .5s);
   }
-  &:hover a {
-    color: $sidebar-link-color;
-    &:hover { color: $sidebar-link-color-hover; }
-  }
+  
 }
 .aside-alt-link {
   color: $sidebar-link-color-subdued;
