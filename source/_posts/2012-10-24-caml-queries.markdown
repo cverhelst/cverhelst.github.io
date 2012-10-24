@@ -4,8 +4,8 @@ title: "CAML Queries"
 date: 2012-10-24 20:44
 comments: true
 categories:
-- CAML
-- SharePoint
+- caml
+- sharepoint
 ---
 
 CAML is a good way to query data in SharePoint if you care about performance since it will be run as an SQL query on SQL Server instead of just sending all the data over to you so you can do your own filtering.

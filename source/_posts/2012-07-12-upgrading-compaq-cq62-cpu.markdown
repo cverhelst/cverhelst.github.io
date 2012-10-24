@@ -4,7 +4,7 @@ title: "How-to: Upgrade the CPU of a Compaq CQ62"
 comments: true
 date: 2012-07-12 12:00
 categories: 
-- how-to
+- guide
 ---
 
 I've wanted to document all the steps I went through when upgrading my notebook's CPU and finally made a Blog where I could do it!
@@ -174,7 +174,7 @@ Over at the right:
 
 At the front (closest to you):
 
-* Disconnect that another random connector
+* Disconnect that other random connector
 
 ![Mysterious connector](/assets/images/notebook/12_TOP_COVER_REMOVED_MYSTERIOUS_CONNECTOR.jpg "The mysterious connector")
 
