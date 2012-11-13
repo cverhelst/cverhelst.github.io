@@ -6,6 +6,7 @@ categories:
 - server
 - ubuntu
 - drupal
+- guide
 ---
 
 ## Resources

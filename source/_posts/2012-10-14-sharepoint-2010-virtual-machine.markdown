@@ -7,6 +7,7 @@ categories:
 - sharepoint
 - guide
 - virtual
+- server
 ---
 
 # Overview
