@@ -5,6 +5,7 @@ date: 2012-07-13 12:00
 comments: true
 categories: 
 - git
+- fixes
 ---
 
 ## Situation
