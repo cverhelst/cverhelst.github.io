@@ -14,7 +14,7 @@ Listing its possibilities and showing briefly how to make modifications. Perhaps
 
 # Overview
 
-- [User]()
+- [User](/blog/2012/11/21/sharepoint-2010-top-to-bottom-crash-course-user-overview/)
 - PowerUser
 - [Developer](/blog/2013/02/23/sharepoint-2010-top-to-bottom-crash-course-development/)
 - Administrator
