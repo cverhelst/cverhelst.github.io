@@ -3,16 +3,16 @@ layout: post
 title: "SharePoint 2010 - Top to Bottom Crash Course - Development"
 date: 2013-02-23 00:05
 comments: true
-published: false
 categories: 
 - sharepoint
 - guide
 ---
 
 SharePoint provides a lot out of the box but at one point you will want to add some custom functionality.
-I'll get into the required tools and setup in a second, but first, let's give you an overview of what "SharePoint solutions" are.
-A sharepoint solution is a Visual Studio project containing code that provides custom functionality, or at the very least automates some configuration stuff for you like deploying SharePoint objects).
-The deployed objects can be all the built-in SharePoint building blocks you can think off:
+
+First, let's give you an overview of what "SharePoint solutions" are.
+A sharepoint solution is a Visual Studio project containing code that provides the custom functionality that you want to add to your SharePoint environment.
+The deployed objects can be all the SharePoint artifacts you can think off:
 
 - Fields
 - Content Types
@@ -22,32 +22,54 @@ The deployed objects can be all the built-in SharePoint building blocks you can 
 - Webs
 - Sites
 - And even custom objects or files.
+	* JQuery library
 
-These solutions usually contain code but nearly always they'll contain CAML as well. It's SharePoint's XML to 'deploy' these built-in SharePoint objects I mentioned earlier. Now, it's certainly possible to create them from code as well, but usually it is preferred to declare them in CAML and go from there. 
-Most of the time your actual code will merely be logic that takes care of the custom functionality you want to provide.
+These solutions will contain code but also some special SharePoint XML called CAML. CAML is used for a lot of things in SharePoint development. It can describe how artifacts need to be deployed, how content types are made up. But also where a certain button needs to be placed in the SharePoint UI and what code runs behind it.
+Most of these things can be done from code as well (like creating content types) but most of the time developers will use CAML for these kind of things. 
 
-Say you want to be able to move an item from one list to an other, you would do it with custom code deployed from a SharePoint solution, that adds a button somewhere that allows the user to move an item to another list. How it works is entirely up to you to decide.
-But if you wanted to add content types with fields to a certain site and there would automatically be a list using that Content Type, this would be a perfect job for CAML. Still using a SharePoint solution to deploy this 'Feature', but not from code but xml instead, declaritively, as it's called.
+CAML has some benefits over code:
 
-Why did I say 'Feature'? Because automatically deploying Content Types and a list or that copy-an-item stuff we saw earlier are features, as in, they're functionality. But in SharePoint you also have a thing called features, as in, little containers of functionality or elements you want to deploy.
-So 
+* Takes less time to do it in CAML than in code
+* Recommended way
+
+but also some downsides, of which some of them are pretty big:
+
+* It's a one off, meaning, your Fields & Content Types declarations are fine for your first time deploy, but if you need to make changes, you'll have to do it from code because CAML changes are not picked up / they are not supported.
+* CAML can be difficult to create from scratch because of the poor IntelliSense.
+* CAML is hard to debug, sometimes an XML comment is enough to make it bug out and it's very difficult to find these kind of bugs.
+
+This would probably make you think "Let's just do everything from code", which I know some people have, but that has it's own kind of problems:
+
+* There's no immediate benefit to the "Can't edit the CAML after the first deploy" problem. You'll still need to write additional code to make changes.
+* It'll probably be more work to create everything from code.
+
+Basically what this means is, SharePoint lacks [a decent framework](http://spgenesis.codeplex.com) to handle these kind of changes :).
+
+Now, how do you actually "Deploy" your code and artifacts ? Well, SharePoint solutions can contain things called "Features", these are small contains for configuration and code. Moreover, they can be deployed at any level of the SharePoint hierarchy:
+
+* Farm
+* WebApplication
+* Site
+* Web
+
+called the scope. This will be obvious for some cases and less obvious for others when deciding which scope to use for your feature. But to give you an idea:
+
+* Fields & Content Types
+	- Site
+* Lists
+	- Web
+* Timer Jobs
+	- Web Application
+
+It all depends on the "Scope" of your code / configuration. Fields and ContentTypes can exist at 3 levels:
+
+* Site
+* Web
+* List
+
+You can't deploy them straight to a List, because that's actually where they are really "Instantiated", i.e. where they are used instead of declared. And guidelines tell you to keep them at the Root of a SiteCollection, i.e. a Site.
 
 So how does this work? Well, you have the SharePoint solution, these contain custom code or elements you want to deploy inside Features. When you Deploy your solution, it makes these features available, but to actually be able to use it or to really create the elements declared in CAML, you need to activate the feature.
-Footnotes
-FEATURES
-Features can be deployed at a different level, or rather they can exist at a certain predefined level. Depending on the scope your code or elements are relevant to, you will want to create them to be one of the following:
-List Feature
-Web Feature
-Site Feature
-Web Application Feature
-Farm Feature
-I guess it's pretty obvious how this works. It's interesting to know that if you have activated a Web Feature at several webs, there are actually multiple instances of that feature active. But you will never have to worry about this until you get to need Feature upgrading.
-CAML 
-You're probably wondering why you would need two ways to create or deploy files or objects ( being CAML and code ). When you start developing for SharePoint you'll notice things need to be done in a certain way because that's how SharePoint works.
-In the case of CAML vs code, you'll generally want to use CAML in the following cases:
-Your elements are static in nature, meaning you'll expect to be the way you  created them when you access them later. This has a lot to do with the fact SharePoint uses Guids as IDs for object, allowing you to reliably get at the object. Guids can only be choosen or assigned through a CAML declaration, not in code.
-
-
 
 
 
