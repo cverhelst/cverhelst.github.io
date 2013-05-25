@@ -3,7 +3,6 @@ layout: post
 title: "SharePoint 2010 - Top to Bottom Crash Course"
 date: 2012-11-18 12:43
 comments: true
-published: false
 categories: 
 - sharepoint
 - guide
@@ -15,9 +14,9 @@ Listing its possibilities and showing briefly how to make modifications. Perhaps
 
 # Overview
 
-- User
+- [User]()
 - PowerUser
-- Developer
+- [Developer](/blog/2013/02/23/sharepoint-2010-top-to-bottom-crash-course-development/)
 - Administrator
 
 # Appendices

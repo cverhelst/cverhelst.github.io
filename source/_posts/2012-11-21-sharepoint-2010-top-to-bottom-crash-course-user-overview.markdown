@@ -3,7 +3,6 @@ layout: post
 title: "SharePoint 2010 - Top to Bottom Crash Course - User Overview"
 date: 2012-11-21 20:30
 comments: true
-published: false
 categories: 
 - sharepoint
 - guide
