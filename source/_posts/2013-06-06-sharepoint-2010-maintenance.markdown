@@ -55,7 +55,7 @@ The provisioning change stands very much in contrast to the __functional__ chang
 
 Some CAML things can also be like this. For example, adding custom actions to a list item's menu through CAML. Let's say you have a typo in the title of the Modal Dialog that's shown when invoking the custom action. No problem, update the CAML (you declare the title to be used in the JavaScript function) and update the deployed solution and done.
 
-## Implementation
+# Implementing changes
 
 Now that we have established what impact each kind of change has on your environment, let's look at the options available to you for implementing them. I've added (full) and (partial) tags to indicate what is possible with each approach.
 
@@ -102,7 +102,7 @@ Also notice that these approaches only apply to Provisional Changes, functional 
 
 In the case of PowerShell, you can merely ask yourself the question, Is this something I might otherwise do manually ? If no, definitely do it in Feature Upgrade code instead of PowerShell, otherwise you have a good point for doing it in PowerShell.
 
-### Feature Upgrades
+## Feature Upgrades
 
 Why do you need Feature Upgrades ? Well, not all situations allow you to just merely switch of an existing feature and turn it back on again. Think of all the provisioned artifacts that already exist. You can't just recreate all of them. Features that deploy Lists for example, you certainly don't want to lose the content of your list. Ditto with Content Types. If some particular code created an artifact that you cannot throw away and recreate, you'll have to use a Feature Upgrade. This is true for almost all __Provisioning Changes__.
 
@@ -112,7 +112,7 @@ Only for the very specific changes, you'll consider using PowerShell instead.
 
 Feature Upgrades have the benefit of having the access to your existing code base, so you can reuse functions. On the other hand, you have the limitation and the associated risk of only being able to go through a particular upgrade action only once. Upgrading a feature decisevely makes that feature the latest version, there's no upgrading twice if you made a mistake where you would have a need for the feature upgrade to run again. This is in stark contrast to using a Feature or PowerShell.
 
-#### Versions
+### Versions
 
 Another possible pitfall of Feature Upgrades are its versions.
 
@@ -142,6 +142,8 @@ You do the same as before, deploying the WSP containing the Feature at version 2
 All well and good but what happens when you do a clean install of your WSP containing the original Feature definiton with version 0.0.0.0 and you deploy the WSP containing the Feature of version 2.0.0.0 and you upgrade this feature ? Ha! You'll see that field X got added to the content type but it won't be in position 1 of the ordering of the fields of the content type. Why's that ? Because the deployed Feature of version 0.0.0.0 did not match the VersionRange of the second UpgradeAction of 1.0.0.0 to 2.0.0.0. 
 
 This is obvious now, but when you're deciding on the Version Ranges it may seem more obvious of matching BeginVersion to previous upgrades EndVersions, no ? After all, you're going from version 0 to version 1 to version 2, right ? Well, this is wholy up to you, do you want to be forced to go through each version deploy or not ? It may seem like an easy choice in this case, only one feature to upgrade and no dependencies, but when you have Feature Upgrades spread out over 3 or more Features that you need to upgrade in a certain order, maybe even execute a few PowerShell scripts in between, you won't be so keen in allowing your environment to go from version 0 to version 2 in one go. What's more, after you've done the Feature Upgrade, that Feature is version 2.0.0.0, no matter if it performed that second UpgradeAction or not. You won't even be able to execute it without doing a redeploying where you manipulate the versions again.
+
+## Deploy and Upgrade scripts
 
 Remember when we talked about the state of a SharePoint environment earlier ? Ideally you'll only want 2 states, the deployed state and the latest developed state.
 
@@ -218,7 +220,7 @@ Keeping the WSP's around and upgrading from one version to another following all
 
 Even better, develop on restores from production backups.
  
-### Feature Instances
+## Feature Instances
 
 Another important fact to keep in mind is that Features have instances. They come forth based on their scope and if you have a Site Collection with some Site Features and you have 10 SubWebs with some Web Features you'll have 1 instance of each Site Feature (on the Site Collection) and 10 instances of each Web Feature (on all the SubWebs). This matters for your Feature Upgrade code as well, this is basically the reach they have controls over. If you have a Web Feature that deploys a List in a Web, and you have 10 Webs with this Feature activated, you'll have 10 instances of the Feature that deployed this List to each Web, and you'll have 10 Feature Upgrades to execute, albeit with the identical Feature Upgrade code.
 
@@ -248,7 +250,7 @@ This is why it's advised to seperated the code making the specific change out of
 
 This brings us to the next point I wanted to touch on.
 
-## Artifacts -  New vs. Existing
+# Artifacts -  New vs. Existing
 
 After you've successfully deployed your changes to the SharePoint environment, there'll be a distinct difference between the SharePoint artifacts to keep in mind. Those that already existed, and those that have been created after the deploy.
 
@@ -266,7 +268,7 @@ To sum it all up, if you stick to the following, you may just be fine :):
 # Miscellaneous
 
 * I prefer Update-SPSolution over the complete Retract/Remove/Add/Deploy cycle. Features get reactivated in the latter and that scares me. I sure know my VS Retract Features breaks the whole environment...
-* When using just Update-SPSolution to upgrade the WSP, remember to run Install-SPFeature on any newly created Features in your solution. It merely "installs" the Feature in the farm so you can activate it where you like. This is something that doesn't automatically happen when using Update-SPSolution opposed to the ful Retract/Remove/Add/Deploy cycle.
+* When using just Update-SPSolution to upgrade the WSP, remember to run Install-SPFeature on any newly created Features in your solution. It merely "installs" the Feature in the farm so you can activate it where you like. This is something that doesn't automatically happen when using Update-SPSolution opposed to the full Retract/Remove/Add/Deploy cycle.
 * When you have issues with locked .dll's because they're still loaded in your PowerShell Shell (so annoying) be aware that you can launch new Shells inside your existing Shell. These Shells will be starting afresh and won't have old dll's loaded. Be aware that you'll have to close this Shell as well, using either exit, or the following approach, which will close the shell right after the last line in the CodeBlock is executed.
     
         PowerShell -Command {
