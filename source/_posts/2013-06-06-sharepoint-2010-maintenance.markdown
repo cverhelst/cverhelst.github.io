@@ -254,4 +254,22 @@ After you've successfully deployed your changes to the SharePoint environment, t
 
 This may not seem that important of a difference, but when you've made mistakes and are seeing strange things happen in your SharePoint environment, be sure to check which of the artifacts are affected, are the old artifacts experiencing issues or is it happening with the newly created ones ? This way, at least, you'll know where to look. Clear indication of inconsistencies in code triggered by the Feature Upgrades and the Feature Activate events.
 
-## 
+# Summary
+
+To sum it all up, if you stick to the following, you may just be fine :):
+
+* Be aware of the nature of a change, provisional or functional ?
+* Make clear distinction between the install/upgrade script of each version & the WSP's / other files needed for each version. Keep integrating each new version back into the "clean install" script.
+* Be wary of any differences between the code that execute for creating new artifacts and the code that executes on existing artifacts to bring them up to speed.
+* Give preference to code contained in the WSP over added PowerShell scripts, and be aware of the nature of Feature Upgrades versus adding a new Feature (run just once vs being able to run again).
+
+# Miscellaneous
+
+* I prefer Update-SPSolution over the complete Retract/Remove/Add/Deploy cycle. Features get reactivated in the latter and that scares me. I sure know my VS Retract Features breaks the whole environment...
+* When using just Update-SPSolution to upgrade the WSP, remember to run Install-SPFeature on any newly created Features in your solution. It merely "installs" the Feature in the farm so you can activate it where you like. This is something that doesn't automatically happen when using Update-SPSolution opposed to the ful Retract/Remove/Add/Deploy cycle.
+* When you have issues with locked .dll's because they're still loaded in your PowerShell Shell (so annoying) be aware that you can launch new Shells inside your existing Shell. These Shells will be starting afresh and won't have old dll's loaded. Be aware that you'll have to close this Shell as well, using either exit, or the following approach, which will close the shell right after the last line in the CodeBlock is executed.
+    
+        PowerShell -Command {
+            Some powershell here
+        }
+* Script everyting :)
