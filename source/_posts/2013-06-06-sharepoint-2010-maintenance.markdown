@@ -7,7 +7,7 @@ categories:
 - sharepoint
 ---
 
-How do you handle changes to your installed SharePoint environment ? What approach do you take to deploying these changes ? How do you best implement them ? What is even possible ?
+How do you handle changes to your installed SharePoint environment ? What approach do you take to deploying these changes ? How do you best implement them ? What pitfalls may you encounter ?
 All of these questions I hope to answer here, to guide any SharePoint developer facing these challenges.
 
 # First deploy
@@ -143,6 +143,81 @@ All well and good but what happens when you do a clean install of your WSP conta
 
 This is obvious now, but when you're deciding on the Version Ranges it may seem more obvious of matching BeginVersion to previous upgrades EndVersions, no ? After all, you're going from version 0 to version 1 to version 2, right ? Well, this is wholy up to you, do you want to be forced to go through each version deploy or not ? It may seem like an easy choice in this case, only one feature to upgrade and no dependencies, but when you have Feature Upgrades spread out over 3 or more Features that you need to upgrade in a certain order, maybe even execute a few PowerShell scripts in between, you won't be so keen in allowing your environment to go from version 0 to version 2 in one go. What's more, after you've done the Feature Upgrade, that Feature is version 2.0.0.0, no matter if it performed that second UpgradeAction or not. You won't even be able to execute it without doing a redeploying where you manipulate the versions again.
 
+Remember when we talked about the state of a SharePoint environment earlier ? Ideally you'll only want 2 states, the deployed state and the latest developed state.
+
+This would indicate you don't want to know about any past versions that might have existed, you just want to be able to go immediately to your latest deployed state and start working on upgrading it to the latest developed state. 
+
+You must realise that this is a very "ideal-world" way of thinking. This can work perfectly if you only have your WSP to think about, and the Features inside it. When you have to calculate in the PowerShell scripts that are needed to upgrade to go from one version to another, you're in a whole different situation. 
+
+When I say PowerShell scripts, I don't mean the script you use to deploy the WSP's with Update-SPSolution and trigger the Feature Upgrades / Install and activate any new features. That's perfectly fine. What I'm talking about is the scripts you use to make these very granular changes, like setting Web Properties, Web Application Properties, re-activating Web Application Features (when dealing with Timer Job code upgrades this is necessary), perhaps adding a search center and configuring search in your application. These kind of changes are more difficult to think of as mere additions to your "clean install" and less so as an upgrade from one state to another.
+
+_Scenario_: you have a version 1 SharePoint environment deployed. You make a large impact change (for exmaple, any of the things I mentioned in the previous paragraph) to get it to version 2. You want to stay in the "Ideal-World" where you only have 2 states to worry about (don't forget about version 3 that's on it's way, making it a total of 3 possible states now). What you'll have to do is the following:
+
+* Make an upgrade scenario, where you call any of these new scripts that perform the big impact changes
+* Integrate this scripts back into the "clean install" scenario (let's call this state version 0)
+
+Now you can safely go from version 0 (nothing) to version 2 or from version 1 to version 2.
+
+When deploying the changes of version 3 you have to worry about upgrading from both a version 1 or version 2 environment (don't think of this as impossible, there's multiple reason you might want or need to have an older version environment around) as well as a clean install from version 0. 
+
+* You'll have to add another upgrade scenario script
+* Update the clean install script with these new changes
+
+Cool, you've managed to stay in your "ideal-world". But can you really trust this "clean-install" scenario compared to the state your production environment is in ? After all, this one went from version 0 to version 1, upgraded to version 2 and later to version 3. Whereas your clean install will go from version 0 to version 3 straight up. But what about the WSP's!? Well, in this case (large impact changes mandating the need of special PowerShell scripts) you'll have to keep each WSP of each version around and perform an Update-SPSolution between each version change.
+
+Your clean install script will look something like this over the course of these upgrades:
+
+#### First deploy
+
+    Install.ps1
+    
+        // Deploy version 1
+        Update-SPSolution -Identity "R1\MySolution.wsp" -LiteralPath (gci "R1\MySolution.wsp")
+        .\CustomConfigurationForVersion1.ps1
+
+#### Upgrade to version 2
+
+    Install.ps1
+
+        // Deploy version 1
+        Update-SPSolution -Identity "R1\MySolution.wsp" -LiteralPath (gci "R1\MySolution.wsp")
+        .\CustomConfigurationForVersion1.ps1
+
+    UpgradeToVersion2.ps1
+    
+        Update-SPSolution -Identity "R2\MySolution.wsp" -LiteralPath (gci "R2\MySolution.wsp")
+        .\FeatureUpgradesForVersion2.ps1
+        .\CustomConfigurationForVersion2.ps1
+    
+#### Upgrade to version 3
+
+    Install.ps1
+    
+        // Deploy version 1
+        Update-SPSolution -Identity "R1\MySolution.wsp" -LiteralPath (gci "R1\MySolution.wsp")
+        .\CustomConfigurationForVersion1.ps1
+        
+        // Upgrade to version 2
+        .\UpgradeToVersion2.ps1
+        
+    UpgradeToVersion2.ps1
+    
+        Update-SPSolution -Identity "R2\MySolution.wsp" -LiteralPath (gci "R2\MySolution.wsp")
+        .\FeatureUpgradesForVersion2.ps1
+        .\CustomConfigurationForVersion2.ps1
+    
+    UpgradeToVersion3.ps1
+        
+        Update-SPSolution -Identity "R3\MySolution.wsp" -LiteralPath (gci "R3\MySolution.wsp")
+        .\FeatureUpgradesForVersion3.ps1
+        .\CustomConfigurationForVersion3.ps1
+        
+Like I said, you have to keep around the WSP's of previous version because of the Feature Upgrade where you might need to do some PowerShell stuff in between, or need to follow a specific order of upgrading (Feature X to version 2, Feature Y to version 2 before upgrading Feature X to version 3, I dunno man, this stuff happens more quickly than you'd think).
+
+Keeping the WSP's around and upgrading from one version to another following all the in between steps gives you the exact same upgrade process as your deployed production environment, which is always what you should aim to be developing on. Not some shortcut deployed environment that doesn't have the same history as your production environment. You'll be sorry when you upgrade your production environment and discover it suddenly behaves differently than your development environment.
+
+Even better, develop on restores from production backups.
+ 
 ### Feature Instances
 
 Another important fact to keep in mind is that Features have instances. They come forth based on their scope and if you have a Site Collection with some Site Features and you have 10 SubWebs with some Web Features you'll have 1 instance of each Site Feature (on the Site Collection) and 10 instances of each Web Feature (on all the SubWebs). This matters for your Feature Upgrade code as well, this is basically the reach they have controls over. If you have a Web Feature that deploys a List in a Web, and you have 10 Webs with this Feature activated, you'll have 10 instances of the Feature that deployed this List to each Web, and you'll have 10 Feature Upgrades to execute, albeit with the identical Feature Upgrade code.
@@ -165,18 +240,18 @@ I prefer to be absolutely certain and create a list of Feature names I want to s
 
 This approach is particulary useful when you need tight control over the order of Feature Upgrading. This might matter when Features of different scope need to be upgraded.
 
-## New vs. Existing
-
-After you've successfully deployed your changes to the SharePoint environment, there'll be a distinct difference between the SharePoint artifacts. Those that already existed, and those that have been newly created after the deploy.
-
-This may not seem that important of a difference, but when you've made mistakes and are seeing strange things happen in your SharePoint environment, be sure to check which of the artifacts are affected, are the old artifacts experiencing issues or is it happening with the newly created ones ? This way, at least, you'll know where to look. Clear indication of inconsistencies in code triggered by the Feature Upgrades and the Feature Activate events.
-
-This brings us to the next point I wanted to touch on.
-
 ## Feature Activate & Feature Upgrade Events
 
 If you're required to make __Provisioning Changes__ where you'll have to implement them through the use of Feature Upgrades to upgrade any existing artifacts, you'll have to remember to not forget about how the new artifacts have to be created.
 
 This is why it's advised to seperated the code making the specific change out of the Feature Upgrade event and also put a call to this code into the Feature Activate event. This way, it's just as if the existing Feature Instances ran the same code as the latest Feature Activate events are and they stay in perfect sync, which is the whole point after all.
 
-##
+This brings us to the next point I wanted to touch on.
+
+## Artifacts -  New vs. Existing
+
+After you've successfully deployed your changes to the SharePoint environment, there'll be a distinct difference between the SharePoint artifacts to keep in mind. Those that already existed, and those that have been created after the deploy.
+
+This may not seem that important of a difference, but when you've made mistakes and are seeing strange things happen in your SharePoint environment, be sure to check which of the artifacts are affected, are the old artifacts experiencing issues or is it happening with the newly created ones ? This way, at least, you'll know where to look. Clear indication of inconsistencies in code triggered by the Feature Upgrades and the Feature Activate events.
+
+## 
