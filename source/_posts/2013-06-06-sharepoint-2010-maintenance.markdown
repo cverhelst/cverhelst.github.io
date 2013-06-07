@@ -10,13 +10,13 @@ categories:
 How do you handle changes to your installed SharePoint environment ? What approach do you take to deploying these changes ? How do you best implement them ? What is even possible ?
 All of these questions I hope to answer here, to guide any SharePoint developer facing these challenges.
 
-# SharePoint 2010 - First deploy
+# First deploy
 
 Your server is set up, your environment is installed along with your solutions and the application is ready to go.
 
 This is the base you will be maintaining, with bug fixes, change requests or just plain improvements. Maybe you're just adding features that are in the pipeline already.
 
-# SharePoint 2010 - Changes
+# Changes
 
 There are several different ways to look at the changes you can make to your SharePoint environment, if you categorize them by how they are picked up by the system or what part of the SharePoint environment they affect, ie. their impact.
 
@@ -55,7 +55,7 @@ The provisioning change stands very much in contrast to the __functional__ chang
 
 Some CAML things can also be like this. For example, adding custom actions to a list item's menu through CAML. Let's say you have a typo in the title of the Modal Dialog that's shown when invoking the custom action. No problem, update the CAML (you declare the title to be used in the JavaScript function) and update the deployed solution and done.
 
-# SharePoint 2010 - Changes implementation
+## Implementation
 
 Now that we have established what impact each kind of change has on your environment, let's look at the options available to you for implementing them. I've added (full) and (partial) tags to indicate what is possible with each approach.
 
@@ -66,7 +66,7 @@ Now that we have established what impact each kind of change has on your environ
     * Adding a new artifact (full)
     * Updating an existing artifact (full)
     
-This doesn't really tell us anything new. CAML is cool for the first time, and than you'll wonder why you didn't use a code approach in the first place :). You'll notice I added (full) and (partial) at the end, but even CAML for new items isn't really full featured because you simple cannot do everything with CAML, so the (partial) tag really only is relative to what you could do __if__ you were working with a new artifact.
+This doesn't really tell us anything new. CAML is cool for the first time, and than you'll wonder why you didn't use a code approach in the first place :). You'll notice I added (full) and (partial) at the end, but even CAML for new items isn't really fully featured because you simply cannot do everything with CAML, so the (partial) tag really only is relative to what you could do __if__ you were working with a new artifact.
 
 This list doesn't even sum up all the options accurately. We left out PowerShell!
 
@@ -102,4 +102,81 @@ Also notice that these approaches only apply to Provisional Changes, functional 
 
 In the case of PowerShell, you can merely ask yourself the question, Is this something I might otherwise do manually ? If no, definitely do it in Feature Upgrade code instead of PowerShell, otherwise you have a good point for doing it in PowerShell.
 
-   
+### Feature Upgrades
+
+Why do you need Feature Upgrades ? Well, not all situations allow you to just merely switch of an existing feature and turn it back on again. Think of all the provisioned artifacts that already exist. You can't just recreate all of them. Features that deploy Lists for example, you certainly don't want to lose the content of your list. Ditto with Content Types. If some particular code created an artifact that you cannot throw away and recreate, you'll have to use a Feature Upgrade. This is true for almost all __Provisioning Changes__.
+
+So that's why you have Feature Upgrades. These will allow you to upgrade existing features, and the artifacts it provisioned.
+
+Only for the very specific changes, you'll consider using PowerShell instead.
+
+Feature Upgrades have the benefit of having the access to your existing code base, so you can reuse functions. On the other hand, you have the limitation and the associated risk of only being able to go through a particular upgrade action only once. Upgrading a feature decisevely makes that feature the latest version, there's no upgrading twice if you made a mistake where you would have a need for the feature upgrade to run again. This is in stark contrast to using a Feature or PowerShell.
+
+#### Versions
+
+Another possible pitfall of Feature Upgrades are its versions.
+
+You really have to pay be sure on how you want to be using the __BeginVersion__ and __EndVersion__ attributes of a particular Upgrade Action for a Feature.
+
+Let's summarize how it works:
+
+* A Feature has a version
+* A Feature can have multiple Version Ranges with multiple UpgradeActions associated to each Version Range element.
+* Each Version Range has a BeginVersion and an EndVersion indicating on which Feature Version it will run the Upgrade Actions.
+* BeginVerion is inclusive and EndVersion is Exclusive
+    * If a Feature is deployed at version 1, and the latest version is 2
+    * and it has a VersionRange element with BeginVersion 1.0.0.0 and an EndVersion of 1.8.0.0
+    * it will be upgraded because the VersionRange matches any Feature with version 1.0.0.0 up and             including 1.7.9.9
+* If a Feature is detected to have a newer version than the deployed Feature, it will go through the Upgrade Process only once, leaving the deployed Feature in the latest version
+
+This last point has an important implication on the use of your BeginVersion and EndVersion attributes and which WSP you deploy containing which version of that particular Feature. 
+
+Imagine you have an UpgradeAction called _AddFieldXToContentTypeY_ with BeginVersion 0.0.0.0 and EndVersion 1.0.0.0 and the Feature is now versioned at 1.0.0.0.
+
+Your deployed Feature is at version 0.0.0.0 (which is the default when it isn't specified). You deploy a WSP containing that same Feature with version 1.0.0.0. You perform a Feature Upgrade and your feature is now at Version 1.0.0.0 and the UpgradeAction was applied, the field is added to the content type.
+
+In your next change, you add an UpgradeAction called _MoveFieldXToPosition1InContentTypeY_ with BeginVersion 1.0.0.0 and EndVersion 2.0.0.0 and the Feature is now versioned at 2.0.0.0.
+
+You do the same as before, deploying the WSP containing the Feature at version 2.0.0.0 and you perform the Feature Upgrade. Cool, your deployed Feature now got upgrade to version 2.0.0.0 and the field was moved to its new position in the order of fields in the content type.
+
+All well and good but what happens when you do a clean install of your WSP containing the original Feature definiton with version 0.0.0.0 and you deploy the WSP containing the Feature of version 2.0.0.0 and you upgrade this feature ? Ha! You'll see that field X got added to the content type but it won't be in position 1 of the ordering of the fields of the content type. Why's that ? Because the deployed Feature of version 0.0.0.0 did not match the VersionRange of the second UpgradeAction of 1.0.0.0 to 2.0.0.0. 
+
+This is obvious now, but when you're deciding on the Version Ranges it may seem more obvious of matching BeginVersion to previous upgrades EndVersions, no ? After all, you're going from version 0 to version 1 to version 2, right ? Well, this is wholy up to you, do you want to be forced to go through each version deploy or not ? It may seem like an easy choice in this case, only one feature to upgrade and no dependencies, but when you have Feature Upgrades spread out over 3 or more Features that you need to upgrade in a certain order, maybe even execute a few PowerShell scripts in between, you won't be so keen in allowing your environment to go from version 0 to version 2 in one go. What's more, after you've done the Feature Upgrade, that Feature is version 2.0.0.0, no matter if it performed that second UpgradeAction or not. You won't even be able to execute it without doing a redeploying where you manipulate the versions again.
+
+### Feature Instances
+
+Another important fact to keep in mind is that Features have instances. They come forth based on their scope and if you have a Site Collection with some Site Features and you have 10 SubWebs with some Web Features you'll have 1 instance of each Site Feature (on the Site Collection) and 10 instances of each Web Feature (on all the SubWebs). This matters for your Feature Upgrade code as well, this is basically the reach they have controls over. If you have a Web Feature that deploys a List in a Web, and you have 10 Webs with this Feature activated, you'll have 10 instances of the Feature that deployed this List to each Web, and you'll have 10 Feature Upgrades to execute, albeit with the identical Feature Upgrade code.
+
+I can highly recommend using the Feature Upgrade Kit from Chris O'Brien, but if you need a tighter control over the order of upgrading the Features, you'll want to script it yourself. This is pretty easy as you can just query the Site object for any features that need to be upgraded (it will return features from subwebs as well).
+
+    $Site = Get-SPSite("http://mysite")
+    $FeatureScope = [Microsoft.SharePoint.SPFeatureScope]::Site
+    $OnlyRequiringFeatureUpgrade = $true
+    $FeaturesRequiringUpgrade = $Site.QueryFeatures($FeatureScope ,$OnlyRequiringUpgrade)
+    
+Here it becomes important to remember you have an instance of a Feature for each Site or Web it is deployed on:
+
+    $ForceUpgrade = $false
+    $FeaturesRequiringUpgrade | % { 
+        $_.Upgrade($ForceUpgrade)
+    }
+    
+I prefer to be absolutely certain and create a list of Feature names I want to see upgraded, query the Site for Features requiring an upgrade, filter out the ones I want to upgrade, remember each Feature's current version, perform the upgrade and compare the versions, if they're still the same I will give feedback about this. Ditto in case the feature I wanted to upgrade cannot actually be upgraded (because it already is at it's latest version, or so SharePoint thinks).
+
+This approach is particulary useful when you need tight control over the order of Feature Upgrading. This might matter when Features of different scope need to be upgraded.
+
+## New vs. Existing
+
+After you've successfully deployed your changes to the SharePoint environment, there'll be a distinct difference between the SharePoint artifacts. Those that already existed, and those that have been newly created after the deploy.
+
+This may not seem that important of a difference, but when you've made mistakes and are seeing strange things happen in your SharePoint environment, be sure to check which of the artifacts are affected, are the old artifacts experiencing issues or is it happening with the newly created ones ? This way, at least, you'll know where to look. Clear indication of inconsistencies in code triggered by the Feature Upgrades and the Feature Activate events.
+
+This brings us to the next point I wanted to touch on.
+
+## Feature Activate & Feature Upgrade Events
+
+If you're required to make __Provisioning Changes__ where you'll have to implement them through the use of Feature Upgrades to upgrade any existing artifacts, you'll have to remember to not forget about how the new artifacts have to be created.
+
+This is why it's advised to seperated the code making the specific change out of the Feature Upgrade event and also put a call to this code into the Feature Activate event. This way, it's just as if the existing Feature Instances ran the same code as the latest Feature Activate events are and they stay in perfect sync, which is the whole point after all.
+
+##
