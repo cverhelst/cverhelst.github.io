@@ -91,12 +91,12 @@ Also notice that these approaches only apply to Provisional Changes, functional 
     * Maybe even to add fields to a content type or remove some
 * Use feature upgrade Code for the complexer stuff
     * Reconfiguring certain field and content type properties
-        * The other of a field in a content type, etc.
+        * The order of a field in a content type, etc.
 * Use PowerShell when it seems more convenient
     * Uploading files
     * Configuration changes to the highest level site collection
-    * Make changes to very specific artifacts
-    * To Make unforeseen changes, stuff that went wrong and needs to be fixed in this specific instance but will likely not happen again in other deploys
+    * Making changes to very specific artifacts
+    * To make unforeseen changes, stuff that went wrong and needs to be fixed in this specific instance but will likely not happen again in other deploys
     * But do keep in mind that it will now be part of your Upgrade Process.
     * IMPORTANT: To automatically perform the solution updates and the feature upgrades. (automate as much as you can)
 
@@ -104,19 +104,19 @@ In the case of PowerShell, you can merely ask yourself the question, Is this som
 
 ## Feature Upgrades
 
-Why do you need Feature Upgrades ? Well, not all situations allow you to just merely switch of an existing feature and turn it back on again. Think of all the provisioned artifacts that already exist. You can't just recreate all of them. Features that deploy Lists for example, you certainly don't want to lose the content of your list. Ditto with Content Types. If some particular code created an artifact that you cannot throw away and recreate, you'll have to use a Feature Upgrade. This is true for almost all __Provisioning Changes__.
+Why do you need Feature Upgrades ? Well, not all situations allow you to just merely switch off an existing feature and turn it back on again. Think of all the provisioned artifacts that already exist. You can't just recreate all of them. Features that deploy Lists for example, you certainly don't want to lose the content of your list. Ditto with Content Types. If some particular code created an artifact that you cannot throw away and recreate, you'll have to use a Feature Upgrade. This is true for almost all __Provisioning Changes__.
 
 So that's why you have Feature Upgrades. These will allow you to upgrade existing features, and the artifacts it provisioned.
 
 Only for the very specific changes, you'll consider using PowerShell instead.
 
-Feature Upgrades have the benefit of having the access to your existing code base, so you can reuse functions. On the other hand, you have the limitation and the associated risk of only being able to go through a particular upgrade action only once. Upgrading a feature decisevely makes that feature the latest version, there's no upgrading twice if you made a mistake where you would have a need for the feature upgrade to run again. This is in stark contrast to using a Feature or PowerShell.
+Feature Upgrades have the benefit of having the access to your existing code base, so you can reuse functions. On the other hand, you have the limitation and the associated risk of only being able to go through a particular upgrade action only once. Upgrading a feature decisively makes that feature the latest version, there's no upgrading twice if you made a mistake where you would have a need for the feature upgrade to run again. This is in stark contrast to using a Feature or PowerShell.
 
 ### Versions
 
 Another possible pitfall of Feature Upgrades are its versions.
 
-You really have to pay be sure on how you want to be using the __BeginVersion__ and __EndVersion__ attributes of a particular Upgrade Action for a Feature.
+You really have to be sure on how you want to be using the __BeginVersion__ and __EndVersion__ attributes of a particular Upgrade Action for a Feature.
 
 Let's summarize how it works:
 
@@ -142,6 +142,8 @@ You do the same as before, deploying the WSP containing the Feature at version 2
 All well and good but what happens when you do a clean install of your WSP containing the original Feature definiton with version 0.0.0.0 and you deploy the WSP containing the Feature of version 2.0.0.0 and you upgrade this feature ? Ha! You'll see that field X got added to the content type but it won't be in position 1 of the ordering of the fields of the content type. Why's that ? Because the deployed Feature of version 0.0.0.0 did not match the VersionRange of the second UpgradeAction of 1.0.0.0 to 2.0.0.0. 
 
 This is obvious now, but when you're deciding on the Version Ranges it may seem more obvious of matching BeginVersion to previous upgrades EndVersions, no ? After all, you're going from version 0 to version 1 to version 2, right ? Well, this is wholy up to you, do you want to be forced to go through each version deploy or not ? It may seem like an easy choice in this case, only one feature to upgrade and no dependencies, but when you have Feature Upgrades spread out over 3 or more Features that you need to upgrade in a certain order, maybe even execute a few PowerShell scripts in between, you won't be so keen in allowing your environment to go from version 0 to version 2 in one go. What's more, after you've done the Feature Upgrade, that Feature is version 2.0.0.0, no matter if it performed that second UpgradeAction or not. You won't even be able to execute it without doing a redeploying where you manipulate the versions again.
+
+I would advise to make BeginVersion 0.0.0.0 as a default and only in very rare cases change it to a specific version. Likewise, make the EndVersion match a generic release version, don't make it too specific.
 
 ## Deploy and Upgrade scripts
 
@@ -264,6 +266,7 @@ To sum it all up, if you stick to the following, you may just be fine :):
 * Make clear distinction between the install/upgrade script of each version & the WSP's / other files needed for each version. Keep integrating each new version back into the "clean install" script.
 * Be wary of any differences between the code that execute for creating new artifacts and the code that executes on existing artifacts to bring them up to speed.
 * Give preference to code contained in the WSP over added PowerShell scripts, and be aware of the nature of Feature Upgrades versus adding a new Feature (run just once vs being able to run again).
+* Make BeginVersion in FeatureUpgrades be 0.0.0.0 as a default and only in very rare cases change it to a specific version. Make the EndVersion match the generic release version, don't make it too specific.
 
 # Miscellaneous
 
