@@ -34,7 +34,7 @@ SharePoint is big and you are allowed to do things in several ways. Some things 
 * Code
 
 CAML is unfortunately the trickiest part. Some of it is picked up as you go, some of it you have to _tell_ the system to __update__.
-What happens when you delete a fieldLink from a content types' elements.xml ? Does it get applied to your SharePoint environment right away ?
+What happens when you delete a Field Link from a Content Types' elements.xml ? Does it get applied to your SharePoint environment right away ?
 The answer here is: No, it doesn't get applied to the SharePoint environment automatically. In fact, [you shouldn't even be making any changes to it after first release](http://msdn.microsoft.com/en-us/library/aa543504(v=office.14%29.aspx#sectionToggle1).
 
 This is what I'd call a __provisioning__ change.
