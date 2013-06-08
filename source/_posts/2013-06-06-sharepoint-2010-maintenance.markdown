@@ -22,9 +22,7 @@ There are several different ways to look at the changes you can make to your Sha
 
 ## Impact
 
-The impact of a change to the existing environment will prove to be a good factor of assessing the risk in deploying the release. 
-
-### Provisioning Change
+The impact of a change to the existing environment will prove to be a good factor of assessing the risk in deploying the release. It will also be a necessary to know the impact so you can decide on how to implement the change.
 
 Let's start with the beginning.
 
@@ -34,14 +32,37 @@ SharePoint is big and you are allowed to do things in several ways. Some things 
 * Code
 
 CAML is unfortunately the trickiest part. Some of it is picked up as you go, some of it you have to _tell_ the system to __update__.
-What happens when you delete a Field Link from a Content Types' elements.xml ? Does it get applied to your SharePoint environment right away ?
-The answer here is: No, it doesn't get applied to the SharePoint environment automatically. In fact, [you shouldn't even be making any changes to it after first release](http://msdn.microsoft.com/en-us/library/aa543504(v=office.14%29.aspx#sectionToggle1).
+What happens when you delete a fieldLink from a content types' elements.xml ? Does it get applied to your SharePoint environment right away ?
+The answer here is: No, it doesn't get applied to the SharePoint environment automatically. In fact, [you shouldn't even be making any changes to it after first release](http://msdn.microsoft.com/en-us/library/aa543504(v=office.14%29.aspx#sectionToggle1). 
 
-This is what I'd call a __provisioning__ change.
+Code on the other hand is a lot easier to deploy. You do an Update-SPSolution on your new WSP and SharePoint will use the new dll and therefor the new code. There are only a few exceptions to this, Timer Jobs are one of them. They require that they be reinstantiated before any of the updated Timer Jobs will use the new code. Usually, reactivating the feature that deploys the Timer Job is enough.
 
-Because of this, you can't merely reconfigure the content type. They need to be altered another way. Some things you can do through [Feature Upgrade](http://www.sharepointnutsandbolts.com/2010/06/feature-upgrade-part-1-fundamentals.html)'s CAML, others you also have to do through Feature Upgrades (or new features) but it requires you to write extra code, specifically for this particular change you want to make.
+Now that we've established that some changes will be recognized automatically and some will not, we can look into the reason for this. When you look closer, you'll notice that all the things that cause you trouble in making SharePoint recognize your changes are nearly always because the way they live in the SharePoint environment is in the form of an Instance. They are living objects.
 
-This doesn't come off as very maintainable. This is because basically you now have _state_. Your SharePoint environment goes from one state to another. That's why you have the versioning in your Feature Upgrades, to determine what state your SharePoint environment is in and how to go from that state to the latest. This is the crucial part. Sometimes it matters what state you were in __before__ you go to the latest state. Usually, you'll mind for sanity's sake, why make a field required when it was already required, right? Each release will bring with it a new state.
+* Timer Jobs
+* Content Types
+* Fields
+* Sites
+* Webs
+* Lists
+* Views
+* WebParts
+
+All of these items are examples of SharePoint artifacts that are instantiated when used in the SharePoint environment and they have to be either modified or recreated before any changes you've made will be manifested. This is what I'd like to call __Provisional Changes__.
+
+### Provisional Change
+
+Provisional Changes are the clumsiest. You will have to write code to make this specific change. This can be either CAML or actual C# code. Either way, it's overhead.
+
+Why do I call it overhead ? Well, CAML allows you to declaratively deploy Content Types, Fields and so on. But it doesn't allow you to make a change in this same CAML that SharePoint will apply to the existing artifacts.
+
+Some things you can alter through [Feature Upgrade](http://msdn.microsoft.com/en-us/library/ee537575(v=office.14%29.aspx)'s CAML, others you'll have to write additional C# code that you will trigger through the Feature Upgrade CustomUpgradeAction.
+
+After you've made a dozen or so of these changes to your SharePoint Solution you'll start to see the difficulty in maintaining this. If you want the CAML way for the initial deploy, you'll have a big list describing all your fields and your content types and their properties (which field is required, which field is added to which content type, which field is shown in which form). When you start having changes, implemented through Feature Upgrades, you'll have to make a "merged" view of these CAML files and any changes you made in code before you can see the actual value of each property of each artifact. 
+
+One guy I know of seems to feel the same way and he made a project called [SPGenesis](http://spgenesis.codeplex.com) that will allow you to manage Fields, Content Types and even List Instances all from their own code file, providing you with only one location where you have to make all your adjustments. Use at your own risk, though.
+
+Another reason this doesn't come off as very maintainable is because, basically, you now have __state__. Your SharePoint artifacts and, generally, your environment, goes from one state to another. That's why you have the versioning in your Feature Upgrades, to determine what state your SharePoint Feature is in and how to go from that state to the latest. This is the crucial part. Sometimes it matters what state you were in __before__ you go to the latest state. Usually, you'll mind for sanity's sake, why make a field required when it was already required, right? Each release will bring with it a new state.
 How many states will be live at the same time ? Ideally, only 2. The latest, which is what your developers are working on. And the latest _released_ state, which is what is deployed in production. You will keep adding code to move your production state to the latest with each release.
 
 Most changes to deployed entities or SharePoint artifacts will be of this nature. WebParts, Lists, Views, Webs, Content Types, Fields.
