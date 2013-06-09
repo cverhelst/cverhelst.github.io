@@ -14,7 +14,7 @@ All of these questions I hope to answer here, to guide any SharePoint developer 
 
 Your server is set up, your environment is installed along with your solutions and the application is ready to go.
 
-This is the base you will be maintaining, with bug fixes, change requests or just plain improvements. Maybe you're just adding features that are in the pipeline already.
+This is the base you will be maintaining, with bug fixes, change requests or just simple improvements. Maybe you're just adding features that are in the pipeline already.
 
 # Changes
 
@@ -78,23 +78,20 @@ Some CAML things can also be like this. For example, adding custom actions to a 
 
 # Implementing changes
 
-Now that we have established what impact each kind of change has on your environment, let's look at the options available to you for implementing them. I've added (full) and (partial) tags to indicate what is possible with each approach.
+Now that we have established what impact each kind of change has on your environment, let's look at the options available to you for implementing them.
 
 * CAML
-    * Adding a new artifact (full)
-    * Updating an existing artifact (partial)
+    * Updating an existing artifact (limited)
 * Code
-    * Adding a new artifact (full)
     * Updating an existing artifact (full)
     
-This doesn't really tell us anything new. CAML is cool for the first time, and than you'll wonder why you didn't use a code approach in the first place :). You'll notice I added (full) and (partial) at the end, but even CAML for new items isn't really fully featured because you simply cannot do everything with CAML, so the (partial) tag really only is relative to what you could do __if__ you were working with a new artifact.
+This doesn't really tell us anything new. CAML is cool for the first time, and than you'll wonder why you didn't use a code approach in the first place :). 
 
 This list doesn't even sum up all the options accurately. We left out PowerShell!
 
 So essentially, you'll be using any of these approaches:
 
 * CAML
-    * Add a Module
     * Feature Upgrade
 * Code
     * Add a Feature
@@ -103,7 +100,9 @@ So essentially, you'll be using any of these approaches:
 
 Notice you can just add a feature that will run code that makes changes to existing artifacts. I wouldn't advise this unless its for the sake of reducing _state_, like with the WebParts I mentioned, although, you'd want to have it set up like that from the start.
 
-Also notice that these approaches only apply to Provisional Changes, functional ones only need a mere code update. Unless you're dealing with the inner workings of a custom WebPart which you'll need to somehow redeploy.
+Also notice that these approaches only apply to __Provisional Changes__, functional ones only need a mere update to the existing code base. Unless you're dealing with the inner workings of a custom WebPart or Timer Job which you'll need to somehow redeploy.
+
+## What to choose?
 
 * Adding a new module does get picked up by SharePoint but most likely not provisioned, which means it's not a complete solution in itself. You'll still need some Feature Upgrade CAML on an existing feature, or an entirely new feature to deploy the module. For me, this depends on whether the artifact is related to anything existing or whether it deserves a completely new feature.
 * Use feature upgrade CAML for the _simpler_ things
@@ -111,8 +110,7 @@ Also notice that these approaches only apply to Provisional Changes, functional 
     * Add a file
     * Maybe even to add fields to a content type or remove some
 * Use feature upgrade Code for the complexer stuff
-    * Reconfiguring certain field and content type properties
-        * The order of a field in a content type, etc.
+    * Reconfiguring certain field and content type properties or the order of a field in a content type, etc.
 * Use PowerShell when it seems more convenient
     * Uploading files
     * Configuration changes to the highest level site collection
