@@ -7,16 +7,19 @@ categories:
 - sharepoint
 ---
 
-How do you handle changes to your installed SharePoint environment ? What approach do you take to deploying these changes ? How do you best implement them ? What pitfalls may you encounter ?
+How do you handle changes to your installed SharePoint environment ? What approach do you take to deploying these changes ? How do you best implement them ? What pitfalls may you encounter ? How can you avoid issues later on ?
+
 All of these questions I hope to answer here, to guide any SharePoint developer facing these challenges.
 
 # First deploy
 
+You've had the opportunity to live the dream and built a SharePoint application from scratch, clean.
+
 Your server is set up, your environment is installed along with your solutions and the application is ready to go.
 
-This is the base you will be maintaining, with bug fixes, change requests or just simple improvements. Maybe you're just adding features that are in the pipeline already.
+This is the base you will be maintaining, with bug fixes, change requests or just simple improvements. Maybe you're just adding features that are in the pipeline already. Let the fun begin.
 
-# Changes
+# All about changes
 
 There are several different ways to look at the changes you can make to your SharePoint environment, if you categorize them by how they are picked up by the system or what part of the SharePoint environment they affect, ie. their impact.
 
@@ -26,18 +29,36 @@ The impact of a change to the existing environment will prove to be a good facto
 
 Let's start with the beginning.
 
+### Primer
+
+How do you interact with SharePoint from a SharePoint solution package (wsp)?
+
 SharePoint is big and you are allowed to do things in several ways. Some things only have one way for you to do it. In the end it comes down to this:
 
 * CAML (declaratively through XML)
 * Code
 
-CAML is unfortunately the trickiest part. Some of it is picked up as you go, some of it you have to _tell_ the system to __update__.
-What happens when you delete a fieldLink from a content types' elements.xml ? Does it get applied to your SharePoint environment right away ?
-The answer here is: No, it doesn't get applied to the SharePoint environment automatically. In fact, [you shouldn't even be making any changes to it after first release](http://msdn.microsoft.com/en-us/library/aa543504(v=office.14%29.aspx#sectionToggle1). 
+I'll go in the specifics of implementing changes later, but for now, let's talk about the differences between these two approaches.
 
-Code on the other hand is a lot easier to deploy. You do an Update-SPSolution on your new WSP and SharePoint will use the new dll and therefor the new code. There are only a few exceptions to this, Timer Jobs are one of them. They require that they be reinstantiated before any of the updated Timer Jobs will use the new code. Usually, reactivating the feature that deploys the Timer Job is enough.
+#### CAML
 
-Now that we've established that some changes will be recognized automatically and some will not, we can look into the reason for this. When you look closer, you'll notice that all the things that cause you trouble in making SharePoint recognize your changes are nearly always because the way they live in the SharePoint environment is in the form of an Instance. They are living objects.
+CAML doesn't let you do everything but the things it can do are easier and cleaner. It almost feels like configuration, which basicly it is.
+
+CAML is unfortunately the trickiest part. Some of the changes you make here on an existing application are picked up on the fly, but for some of them you have to _tell_ the system to update itself.
+
+For instance, what happens when you delete a fieldLink from a content types' elements.xml ? Does it get applied to your SharePoint environment right away ?
+
+The answer here is: No, it doesn't get applied to the SharePoint environment automatically. In fact, [you shouldn't even be making any changes to it after first release](http://msdn.microsoft.com/en-us/library/aa543504(v=office.14%29.aspx#sectionToggle1) according to Microsoft themselves and this is [backed up by someone else's excellent investigation](http://geekswithblogs.net/SAF/archive/2009/07/28/upgrading-sharepoint-site-content-types.aspx). Similarly this can be extended to a fields' elements.xml. 
+
+On the other hand, CAML that deploys Custom Actions __can__ be updated on the fly.
+
+#### Code
+
+Code on the other hand is a lot easier to deploy. You do an Update-SPSolution on your new WSP and SharePoint will use the new dll and therefor the new code. This is what life should be like! But, as always, there are always some exceptions to this, Timer Jobs are one of them. They require that they be reinstantiated before any of the new Timer Jobs will use the updated code.
+
+### State
+
+Now that we've established that some changes will be recognized automatically and some will not, we can look into the underlying reason. When you look closer, you'll notice that all the things that cause you trouble in making SharePoint recognize your changes are nearly always because the way they live in the SharePoint environment is in the form of an Instance. They are living objects.
 
 * Timer Jobs
 * Content Types
@@ -48,11 +69,15 @@ Now that we've established that some changes will be recognized automatically an
 * Views
 * WebParts
 
-All of these items are examples of SharePoint artifacts that are instantiated when used in the SharePoint environment and they have to be either modified or recreated before any changes you've made will be manifested. This is what I'd like to call __Provisional Changes__.
+All of these items are examples of SharePoint artifacts that are instantiated when used in the SharePoint environment and they have to be either modified or recreated before any changes you've made will be manifested.
 
-### Provisional Change
+#### Changing State
 
-Provisional Changes are the clumsiest. You will have to write code to make this specific change. This can be either CAML or actual C# code. Either way, it's overhead.
+All of the aforementioned artifacts live in the SharePoint environment as instances. This implies they have a state, and this is the underlying reason they are thougher to change and any changes to these instances have a bigger impact on your upgrade. That is if you want to actually manifest the changes right away. Like I mentioned before, some changes can be made but won't actually be picked up before you explicitely make it so.
+
+#### Provisioning Changes
+
+Changes to these instances are the clumsiest. You will have to write code to make that specific change. This can be either CAML or actual C# code. Either way, it's overhead.
 
 Why do I call it overhead ? Well, CAML allows you to declaratively deploy Content Types, Fields and so on. But it doesn't allow you to make a change in this same CAML that SharePoint will apply to the existing artifacts.
 
@@ -60,21 +85,35 @@ Some things you can alter through [Feature Upgrade](http://msdn.microsoft.com/en
 
 After you've made a dozen or so of these changes to your SharePoint Solution you'll start to see the difficulty in maintaining this. If you want the CAML way for the initial deploy, you'll have a big list describing all your fields and your content types and their properties (which field is required, which field is added to which content type, which field is shown in which form). When you start having changes, implemented through Feature Upgrades, you'll have to make a "merged" view of these CAML files and any changes you made in code before you can see the actual value of each property of each artifact. 
 
-One guy I know of seems to feel the same way and he made a project called [SPGenesis](http://spgenesis.codeplex.com) that will allow you to manage Fields, Content Types and even List Instances all from their own code file, providing you with only one location where you have to make all your adjustments. Use at your own risk, though.
+One guy I know of seems to feel the same way and he made a project called [SPGenesis](http://spgenesis.codeplex.com) that will allow you to manage Fields, Content Types and even List Instances all from their own code file, providing you with only one location where you have to make all your adjustments. Use at your own risk, though. But essentially this is a genius solution to the problem. You'll see a resembles with the next point in this article but this framework basically allows you to set your properties, provision them, make changes, provision them, all with the exact same code. No more overhead. You change a field's required attribute and re-activate a feature and it's done.
 
-Another reason this doesn't come off as very maintainable is because, basically, you now have __state__. Your SharePoint artifacts and, generally, your environment, goes from one state to another. That's why you have the versioning in your Feature Upgrades, to determine what state your SharePoint Feature is in and how to go from that state to the latest. This is the crucial part. Sometimes it matters what state you were in __before__ you go to the latest state. Usually, you'll mind for sanity's sake, why make a field required when it was already required, right? Each release will bring with it a new state.
-How many states will be live at the same time ? Ideally, only 2. The latest, which is what your developers are working on. And the latest _released_ state, which is what is deployed in production. You will keep adding code to move your production state to the latest with each release.
+##### I can't overstate the importance of State, or can I?
 
-Most changes to deployed entities or SharePoint artifacts will be of this nature. WebParts, Lists, Views, Webs, Content Types, Fields.
+Although most of the changes to instances are of the nature I described earlier, there are exceptions.
 
-Some of these can be unburdened of the consequences state brings along. WebParts for instance. If you plan ahead, and put them in their seperate feature where you put all the code that builds and adds a certain webpart to a certain page, than you're set. Than you only need some code that removes the webpart again on feature deactivation and you're there. Since WebParts almost never contain any content themselves, but merely provide functionality or content to the viewer, they can be discarded and rebuild without any problems. This basically does away with the state that Content Types and such are in.
+Some of these can be unburdened of the consequences state brings along. 
+
+WebParts and Timer Jobs for instance. These two are a bit deceptive. Although they live as instances, they actually never change, now do they ? When you deploy them, do they grow larger because of added content ? Do they change in any way over time ? If they do in your case, than skip ahead, but in most cases they will not. They are faking their stateness, as the only reason they are instantiated is to perform their job, nothing else.
+
+So be smart and plan ahead. Put them in their seperate feature where you put all the code that builds and adds a certain webpart to a certain page. Probably you already have this code somewhere. If that's the case your missing step is to add some code that removes the webpart again on feature deactivation and you're there. Since WebParts almost never contain any content themselves, but merely provide functionality or content to the viewer, they can be discarded and rebuild without any problems. This basically does away with all the nasty consequences of state you have to deal with like with Content Types.
+
 When a change needs to happen to this WebPart, you update the code that constructs it and you re-activate the feature. The WebPart is now deployed with the latest changes, no matter what state it was in before. Views are another example. They are essentially stateless, so do yourself a favor and treat them that way :).
 
-### Functional Change
+A good reason that you want to extend this to a whole page for WebParts is that you may have more of them on one page and you want to connect them, so it's easier to have them recycled all at once. Hell, if you want to go crazy you can maybe even include the list view they use.
 
-The provisioning change stands very much in contrast to the __functional__ change. Arguably the easiest one to deal with. What I mean with a functional change is merely any change in functionality that is stateless, like a function. You have code that calculates some number from several other input fields, but now needs to change the format it presents it in ? Functional change. You adapt the code, you update the deployed solution and the change is immediately visible afterwards. It is picked up automatically by SharePoint. No overhead.
+#### Stateless changes
+
+The provisional change stands very much in contrast to the __functional__ change. Arguably the easiest one to deal with. What I mean with a functional change is merely any change in functionality that is stateless, like a function. You have code that calculates some number from several other input fields, but now needs to change the format it presents it in ? Functional change. You adapt the code, you update the deployed solution and the change is immediately visible afterwards. It is picked up automatically by SharePoint. No overhead.
 
 Some CAML things can also be like this. For example, adding custom actions to a list item's menu through CAML. Let's say you have a typo in the title of the Modal Dialog that's shown when invoking the custom action. No problem, update the CAML (you declare the title to be used in the JavaScript function) and update the deployed solution and done.
+
+### SharePoint Application Life cycle
+
+Your SharePoint artifacts and, generally, your environment, will go from one state to another. That's why you have the versioning in your Feature Upgrades, to determine what state your SharePoint Feature is in and how to go from that state to the latest. This is the crucial part. Sometimes it matters what state you __were__ in before you go to the latest state.
+
+Sometimes, it matters because of a technical reason. Sometimes it's just because you feel it's silly to make a field required when it was __already__ required. But all that matters is that each release with changes to the __state__ of SharePoint artifacts will take the SharePoint environment into a _new_ state you have to account for.
+
+How many states will be live at the same time ? Ideally, only 2. The latest, which is what your developers are working on. And the last __stable__ release, which is what is deployed in production. With each release that changes the state of your SharePoint artifacts, you will have code that moves your _then_ stable release into the latest release.
 
 # Implementing changes
 
@@ -164,7 +203,11 @@ This is obvious now, but when you're deciding on the Version Ranges it may seem 
 
 I would advise to make BeginVersion 0.0.0.0 as a default and only in very rare cases change it to a specific version. Likewise, make the EndVersion match a generic release version, don't make it too specific.
 
-## Deploy and Upgrade scripts
+# Deploying these changes
+
+Naturally, all this talk about changes to state and it carring your SharePoint application from one version into another will have some implications for the deployment aspect of it all right? Right.
+
+## Initial Deploy & Upgrade Scripts
 
 Remember when we talked about the state of a SharePoint environment earlier ? Ideally you'll only want 2 states, the deployed state and the latest developed state.
 
@@ -172,7 +215,19 @@ This would indicate you don't want to know about any past versions that might ha
 
 You must realise that this is a very "ideal-world" way of thinking. This can work perfectly if you only have your WSP to think about, and the Features inside it. When you have to calculate in the PowerShell scripts that are needed to upgrade to go from one version to another, you're in a whole different situation. 
 
+## PowerShell, our savior
+
 When I say PowerShell scripts, I don't mean the script you use to deploy the WSP's with Update-SPSolution and trigger the Feature Upgrades / Install and activate any new features. That's perfectly fine. What I'm talking about is the scripts you use to make these very granular changes, like setting Web Properties, Web Application Properties, re-activating Web Application Features (when dealing with Timer Job code upgrades this is necessary), perhaps adding a search center and configuring search in your application. These kind of changes are more difficult to think of as mere additions to your "clean install" and less so as an upgrade from one state to another.
+
+These scripts have a "downside" (if you're so inclined to call it that) of being __outside__ of your SharePoint Solution. They are not integrated (that might be cool project though!) in your deploy. Like I said before, you might _use_ PowerShell to deploy your solutions but I'm talking about the provisiong scripts (those making changes to the state of your environment). These might have a specific order in how they need to run and are probably very "version specific". They may depend on a field being there (that got deployed in release X) and stuff like that. They demand their moment in the spotlight in between the states of your releases.
+
+That's why it's difficult to justify deploying latest release code straight up as a valid "Release State" (I'm looking at you developers). There's really no way around going through all the proper deployment steps from start to finish. Except restores from production.
+
+This really comes down to how well you trust your production environment. Manual changes to this environment have a big impact on the next release, as in, those changes are gone. And maybe some stuff when wrong during the deploy, and corrupted some data... (it happens, don't laugh).
+
+There's nothing that trumps doing the real thing, so developing on a production restore (on your local machine) really is the only way to make sure you are going through the same scenario as you would on production.
+
+# Example:
 
 _Scenario_: you have a version 1 SharePoint environment deployed. You make a large impact change (for exmaple, any of the things I mentioned in the previous paragraph) to get it to version 2. You want to stay in the "Ideal-World" where you only have 2 states to worry about (don't forget about version 3 that's on it's way, making it a total of 3 possible states now). What you'll have to do is the following:
 
@@ -237,15 +292,13 @@ Your clean install script will look something like this over the course of these
         
 Like I said, you have to keep around the WSP's of previous version because of the Feature Upgrade where you might need to do some PowerShell stuff in between, or need to follow a specific order of upgrading (Feature X to version 2, Feature Y to version 2 before upgrading Feature X to version 3, I dunno man, this stuff happens more quickly than you'd think).
 
-Keeping the WSP's around and upgrading from one version to another following all the in between steps gives you the exact same upgrade process as your deployed production environment, which is always what you should aim to be developing on. Not some shortcut deployed environment that doesn't have the same history as your production environment. You'll be sorry when you upgrade your production environment and discover it suddenly behaves differently than your development environment.
-
-Even better, develop on restores from production backups.
+Keeping the WSP's around and upgrading from one version to another following all the in between steps gives you the exact same upgrade process as your deployed production environment, which is always what you should aim to be developing on. Not some shortcut deployed environment that doesn't have the same history as your production environment. You'll be sorry when you upgrade your production environment and discover it suddenly behaves differently than your development environment. 
  
 ## Feature Instances
 
 Another important fact to keep in mind is that Features have instances. They come forth based on their scope and if you have a Site Collection with some Site Features and you have 10 SubWebs with some Web Features you'll have 1 instance of each Site Feature (on the Site Collection) and 10 instances of each Web Feature (on all the SubWebs). This matters for your Feature Upgrade code as well, this is basically the reach they have controls over. If you have a Web Feature that deploys a List in a Web, and you have 10 Webs with this Feature activated, you'll have 10 instances of the Feature that deployed this List to each Web, and you'll have 10 Feature Upgrades to execute, albeit with the identical Feature Upgrade code.
 
-I can highly recommend using the Feature Upgrade Kit from Chris O'Brien, but if you need a tighter control over the order of upgrading the Features, you'll want to script it yourself. This is pretty easy as you can just query the Site object for any features that need to be upgraded (it will return features from subwebs as well).
+I can highly recommend using the [Feature Upgrade Kit](http://spfeatureupgrade.codeplex.com) from Chris O'Brien, but if you need a tighter control over the order of upgrading the Features, you'll want to script it yourself. This is pretty easy as you can just query the Site object for any features that need to be upgraded (it will return features from subwebs as well).
 
     $Site = Get-SPSite("http://mysite")
     $FeatureScope = [Microsoft.SharePoint.SPFeatureScope]::Site
@@ -271,21 +324,23 @@ This is why it's advised to seperated the code making the specific change out of
 
 This brings us to the next point I wanted to touch on.
 
-# Artifacts -  New vs. Existing
+# Rise, my children (aka Artifacts -  New vs. Existing)
 
-After you've successfully deployed your changes to the SharePoint environment, there'll be a distinct difference between the SharePoint artifacts to keep in mind. Those that already existed, and those that have been created after the deploy.
+After you've successfully deployed your changes to the SharePoint environment, there'll be a distinct difference between any SharePoint artifacts to keep in mind. Those that already existed, and those that have been created _after_ the deploy.
 
 This may not seem that important of a difference, but when you've made mistakes and are seeing strange things happen in your SharePoint environment, be sure to check which of the artifacts are affected, are the old artifacts experiencing issues or is it happening with the newly created ones ? This way, at least, you'll know where to look. Clear indication of inconsistencies in code triggered by the Feature Upgrades and the Feature Activate events.
 
 # Summary
 
-To sum it all up, if you stick to the following, you may just be fine :):
+To sum it all up, if you stick to the following, you may just be fine :) :
 
 * Be aware of the nature of a change, provisional or functional ?
 * Make clear distinction between the install/upgrade script of each version & the WSP's / other files needed for each version. Keep integrating each new version back into the "clean install" script.
 * Be wary of any differences between the code that execute for creating new artifacts and the code that executes on existing artifacts to bring them up to speed.
 * Give preference to code contained in the WSP over added PowerShell scripts, and be aware of the nature of Feature Upgrades versus adding a new Feature (run just once vs being able to run again).
 * Make BeginVersion in FeatureUpgrades be 0.0.0.0 as a default and only in very rare cases change it to a specific version. Make the EndVersion match the generic release version, don't make it too specific.
+* Don't unnecessarily bother with state
+    * Timer Jobs, Web Parts and Views can be treated as stateless if you seperate them from any other code in their seperate feature so you can more easily reinstantiating them.
 
 # Miscellaneous
 
