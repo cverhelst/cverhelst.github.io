@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "SPField and .SchemaXML changes"
+title: "SharePoint 2010 - SPField and SchemaXML changes"
 date: 2013-08-23 21:28
 comments: true
 categories: 
@@ -35,9 +35,9 @@ Running some tests of our own, we managed to reproduce the above symptoms by mak
 
 This brings you in a situation where:
 
-* After the SPField SchemaXml has been updated, none of the parent SPField (the site column) changes are pushed to their children (list fields) any longer.
-* Updating the parent Content Type and pushing the changes down breaks these translations (giving you the english translations, all the time). This however, does fix the parent SPField not pushing down its changes.
-* Updating the parent SPField does push down its changes, but removes any list level changes that were made before. 
+- After the SPField SchemaXml has been updated, none of the parent SPField (the site column) changes are pushed to their children (list fields) any longer.
+- Updating the parent Content Type and pushing the changes down breaks these translations (giving you the english translations, all the time). This however, does fix the parent SPField not pushing down its changes.
+- Updating the parent SPField does push down its changes, but removes any list level changes that were made before. 
 
 The last 2 points can be alternated and they'll keep giving the same effect (like a loop, the one breaks the fixes of the other). Thats the situation we were in.
 
@@ -49,7 +49,7 @@ Your translations are there again and you can make changes to the parent field/c
 
 # Conclusion
 
-Stay the **** out of the SPField.SchemaXml if you want to have any hope of retaining your sanity while performing maintenance to the application afterwards.
+Stay the 		-- out of the SPField.SchemaXml if you want to have any hope of retaining your sanity while performing maintenance to the application afterwards.
 No. Seriously.
 
 I'll add a SharePoint Visual Studio solution that you can deploy to check this for yourself (it has all the required code in features that you can just activate to see the effect for yourself).
@@ -60,68 +60,68 @@ Here's the steps we used to test this behavior:
 
 ### Base
 
-* Given:
-** A field
-*** Provisioned from CAML with resource keys
-** A contentType
-*** Provisioned from CAML to include the field as a fieldLink
-** A list
-*** Based on the previous contentType
-*The situation is as expected:
-** Field titles are translated in the forms of the list.
+- Given:
+    - A field
+        - Provisioned from CAML with resource keys
+	- A contentType
+		- Provisioned from CAML to include the field as a fieldLink
+	- A list
+		- Based on the previous contentType
+-The situation is as expected:
+	- Field titles are translated in the forms of the list.
 
 ### Change Set 1
-* Update: 
-** A new field is added through code without resource keys
-** This field is also added as a field link to the content type
-* This situation is as expected:
-** Field exists in the list
-** Field title is not translated across UI display language changes.
+- Update: 
+	- A new field is added through code without resource keys
+	- This field is also added as a field link to the content type
+- This situation is as expected:
+	- Field exists in the list
+	- Field title is not translated across UI display language changes.
 
 ### Change Set 2
-* Update:
-** Add resource keys to the field
-*** We add the resource keys by changing the SchemaXmlWithResourceTokens in code.
-* The situation is as expected:
-** The field title is translated.
+- Update:
+	- Add resource keys to the field
+		- We add the resource keys by changing the SchemaXmlWithResourceTokens in code.
+- The situation is as expected:
+	- The field title is translated.
 
 ### Change Set 3
-* Update:
-** Make the field in the rootWeb required
-*** We update the site column field and update with pushing the changes to the list
-* The situation is _NOT_ as expected
-** The field is not required in the list
+- Update:
+	- Make the field in the rootWeb required
+		- We update the site column field and update with pushing the changes to the list
+- The situation is _NOT_ as expected
+	- The field is not required in the list
 
 ### Change Set 4
-* Update:
-** Make the fieldLink on the content Type required
-* The situation is as expected
-** The field in the form is required
+- Update:
+	- Make the fieldLink on the content Type required
+- The situation is as expected
+	- The field in the form is required
 
 ### Change Set 5
-* Update:
-** We call update on the rootWeb contentType and push the changes to the list (regardless if any changes were made).
-* The situation is _NOT_ as expected
-** The field is no longer required
-** The field title is no longer translated
+- Update:
+	- We call update on the rootWeb contentType and push the changes to the list (regardless if any changes were made).
+- The situation is _NOT_ as expected
+	- The field is no longer required
+	- The field title is no longer translated
 
 ### Change Set 6
-* Update:
-** We call update on the rootWeb field and push the changes to the list (regardless if any changes were made).
-* The situation is _NOT_ as expected
-** The field is no longer required
-** The field titles are translated again
+- Update:
+	- We call update on the rootWeb field and push the changes to the list (regardless if any changes were made).
+- The situation is _NOT_ as expected
+	- The field is no longer required
+	- The field titles are translated again
 
 ## Change Set 7
-* Update:
-** Make the field in the rootWeb required again
-* The situation is as expected
-** The field in the list is also required
-** The field titles are translated again
+- Update:
+	- Make the field in the rootWeb required again
+- The situation is as expected
+	- The field in the list is also required
+	- The field titles are translated again
 
 ## Change Set 8
-* Update:
-** We call update on the rootWeb field and push the changes to the list (regardless if any changes were made).
-* The situation is not as expected
-** The field is still required
-** The field titles have lost their translations again
+- Update:
+	- We call update on the rootWeb field and push the changes to the list (regardless if any changes were made).
+- The situation is not as expected
+	- The field is still required
+	- The field titles have lost their translations again
