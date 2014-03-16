@@ -27,9 +27,9 @@ Fixing the resources involved updating every field instance (on the list) that w
 Fast forward to now and we've finally figured out what the root cause of this issue is (and how to permenantly fix it).
 
 The reason our translation failed is because during the life-cycle of the SharePoint application deployed at the customer, the SPField's had their SchemaXML's updated manually.
-As in, reading out the SchemaXmlWithResourceTokens property, updating the DisplayName, Description and Group properties with a resource token (which it didn't originally have), and updating the field (which is actually unnecessary).
+As in, reading out the SchemaXmlWithResourceTokens property, updating the DisplayName, Description and Group properties with a resource token (which it didn't originally have), and updating the field (which is actually [unnecessary](http://msdn.microsoft.com/en-us/library/microsoft.sharepoint.spfield.schemaxml.aspx)).
 
-I don't mean to point fingers but this is legacy code and we've always wondered if it wasn't fishy. We now know.
+I don't mean to point fingers but this is legacy code and we've always wondered if it wasn't fishy. Now we know.
 
 Running some tests of our own, we managed to reproduce the above symptoms by making changes to the SchemaXml of fields.
 
@@ -49,7 +49,7 @@ Your translations are there again and you can make changes to the parent field/c
 
 # Conclusion
 
-Stay the 		-- out of the SPField.SchemaXml if you want to have any hope of retaining your sanity while performing maintenance to the application afterwards.
+Stay the \*\*\*\* out of the SPField.SchemaXml if you want to have any hope of retaining your sanity while performing maintenance to the application afterwards.
 No. Seriously.
 
 I'll add a SharePoint Visual Studio solution that you can deploy to check this for yourself (it has all the required code in features that you can just activate to see the effect for yourself).
