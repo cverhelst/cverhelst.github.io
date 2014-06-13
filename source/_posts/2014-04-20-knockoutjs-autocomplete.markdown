@@ -157,7 +157,7 @@ The properties passed are properties on the ViewModel, being `selectedOption` an
 This is a lot to take in at once. You should focus on the following:
 
 - valueAccessor
-	- Reprents the passed in argument, being out object containing the observable for the selected options and the options array
+	- Represents the passed in argument, being out object containing the observable for the selected options and the options array
 - updateElementValueWithLabel
 	- This is a function we call on each JQuery.UI Autocomplete widget's events to set the selectedOption observable and to set the textbox to contain the label. It has the [same parameters as the original widget events](http://api.jqueryui.com/autocomplete/#event-select)
 - $(element).autoComplete(...)
