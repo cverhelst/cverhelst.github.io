@@ -49,6 +49,7 @@ Currently it's just an array containing objects with a `name`and an `id` propert
 
 The original data array itself can be of any structure, but JQuery.UI's [autocomplete widget](http://api.jqueryui.com/autocomplete/#option-source) expects an array of strings as a minimum, they will be used for the label & value both, or you can supply an array of objects that have a `label` and a value `property`. Since we want a different value for the option's `label` and `value` we will use this object array. The `label` and `value` properties are mandatory, but we are free to add our own properties, which we will do using the following function to convert our initial data array to a proper JQuery.UI autocomplete widget's source array:
 
+```js
 	function (element) {
         // JQuery.UI.AutoComplete expects label & value properties, but we can add our own
         return {
@@ -58,13 +59,14 @@ The original data array itself can be of any structure, but JQuery.UI's [autocom
             object: element
         };
     };
+```
 
 As you can see, we've added a `source` property to hold our original object.
 
 ## ViewModel
 
 As you may know, KnockoutJS is a MVVM framework, and here is our ViewModel that will be used for the autocomplete widget: 
-
+```js
 	function ViewModel() {
 	    var self = this;
 	    
@@ -81,7 +83,7 @@ As you may know, KnockoutJS is a MVVM framework, and here is our ViewModel that 
 	        };
 	    });
 	}
-
+```
 As you can see, it uses our previous function to convert the original data array to an options list. It also uses the **KnockoutJS Observable** to hold the selected value. We use the observable because we may want to know if it updates.
 
 KnockoutJS's observables are implementations from the Observable pattern and it will automatically let any instances that depend on the Observable know if it's value is updated.
@@ -96,11 +98,13 @@ To allow us to generically pass in the data for the Autocomplete Widget in the c
 ### View binding
 
 I think it's easier to understand it's functionality when you see how it's being used:
-	
+
+```html
 	<input type="text" data-bind="autoComplete: { selected: selectedOption, options: options }" />
 
 	<!-- Debugging -->
 	<p data-bind="text: selectedOption().object.name"></p>
+```
 
 The input textbox is will be converted in the AutoComplete Widget by JavaScript code later.
 
@@ -114,6 +118,7 @@ The properties passed are properties on the ViewModel, being `selectedOption` an
 
 ### The binding handler
 
+```js
 	ko.bindingHandlers.autoComplete = {
 	    // Only using init event because the 
 		// Jquery.UI.AutoComplete widget will take care of the update callbacks
@@ -153,6 +158,7 @@ The properties passed are properties on the ViewModel, being `selectedOption` an
 	        });
 	    }
 	};
+```
 
 This is a lot to take in at once. You should focus on the following:
 
@@ -167,18 +173,22 @@ This is a lot to take in at once. You should focus on the following:
 
 #### Value accessor
 
+```js
 	// valueAccessor = { selected: mySelectedOptionObservable, options: myArrayOfLabelValuePairs }
 	var settings = valueAccessor();
-
+```
 The `valueAccessor` parameter of the binding deserves some explanation. I think typically it's not a complex object like in my case. So far I've seen people use [multiple bindings](http://stackoverflow.com/a/11378286) to pass extra values to their binding handler. I don't think it's very clean so I just pass one object, which has multiple properties for representing all the parameters. Nothing is static typed so using this approach or the multiple binding's is practically the same, in my opinion.
 
 So now that we have our input, we read our individual parameters from it.
 
+```js
 	var selectedOption = settings.selected;
 	var options = settings.options;
+```
 
 #### Autocomplete widget
 
+```js
     $(element).autocomplete({
         source: options,
         select: function (event, ui) {
@@ -191,11 +201,13 @@ So now that we have our input, we read our individual parameters from it.
             updateElementValueWithLabel(event, ui);
         }
     });
+```
 
 This is pretty straigthforward, `source` property takes the list of options and then we override the events on the widget.
 
 #### Update Element Value With Label
 
+```js
     var updateElementValueWithLabel = function (event, ui) {
         // Stop the default behavior
         event.preventDefault();
@@ -210,6 +222,7 @@ This is pretty straigthforward, `source` property takes the list of options and 
             selectedOption(ui.item);
         }
     };
+```
 
 This function will stop the default behavior of updating the textbox with the option's `value`, on the `ui.item` object, we want to use its `label` instead.
 
@@ -219,21 +232,26 @@ Finally, we update the selectedOption Observable with the whole item from the op
 
 Don't forget the mandatory KnockoutJS initialization code:
 
+```js
 	$(function () {
 	    ko.applyBindings(new ViewModel());
 	});
-	
+```
+
 ## Full Code
 	
 ### HTML 
 
+```html
 	<input type="text" data-bind="autoComplete: { selected: selectedOption, options: options }" />
 
 	<!-- Debugging -->
 	<p data-bind="text: selectedOption().object.name"></p>
+```
 
 ### JavaScript
 
+```js
 	ko.bindingHandlers.autoComplete = {
 	    // Only using init event because the Jquery.UI.AutoComplete widget will take care of the update callbacks
 	    init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
@@ -314,3 +332,4 @@ Don't forget the mandatory KnockoutJS initialization code:
 	$(function () {
 	    ko.applyBindings(new ViewModel());
 	}); 
+```
