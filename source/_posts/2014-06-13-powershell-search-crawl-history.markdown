@@ -14,7 +14,7 @@ I've been working with Search in SP2013 lately and maintaining search involves l
 Sadly, some of the things that the Search Administration UI shows you, like the Crawl History, do not have a direct PowerShell equivalent.
 
 After reflecting on the logic behind the page, I came up with this:
-```Powershell
+```powershell 
 	$numberOfResults = 10
 	$contentSourceName = "MyContentSource"
 	
