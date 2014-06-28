@@ -21,7 +21,7 @@ I'll run you through the sourcecode step by step:
 ## Original Data
 
 We have a datasource that will supply the option list that will be used for the autocomplete functionality:
-
+```js
 	// Array with original data
 	var remoteData = [{
 	    name: 'Ernie',
@@ -42,7 +42,7 @@ We have a datasource that will supply the option list that will be used for the 
 	    name: 'Peaches',
 	    id: 6
 	}];
-
+```
 Currently it's just an array containing objects with a `name`and an `id` property. 
 
 ## JQuery.UI Autocomplete widget
