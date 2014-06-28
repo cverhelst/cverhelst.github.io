@@ -9,7 +9,7 @@ categories:
 - powershell
 ---
 
-I've been working with Search in SP2013 lately and maintaining search involves looking in the Search Administration pages, that admittedly give you a lot of information. Sometimes I'd like an easier way of getting it, though.
+I've been working with Search in SP2013 lately and maintaining search involves looking in the Search Administration pages, that admittedly give you a lot of information. Sometimes I'd like an easier way of getting it, though. As did my colleague, for whom I wrote this particular script.
 
 Sadly, some of the things that the Search Administration UI shows you, like the Crawl History, do not have a direct PowerShell equivalent.
 
