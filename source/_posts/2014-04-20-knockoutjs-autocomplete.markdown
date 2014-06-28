@@ -170,7 +170,7 @@ This is a lot to take in at once. You should focus on the following:
 	// valueAccessor = { selected: mySelectedOptionObservable, options: myArrayOfLabelValuePairs }
 	var settings = valueAccessor();
 
-The `valueAccessor` parameter of the binding deserves some explanation. I think typically it's not a complex object like in my case. So far I've seen people use [multiple `bindings`](http://stackoverflow.com/a/11378286) to pass extra values to their binding handler. I don't think it's very clean so I just pass one object, which has multiple properties for representing all the parameters. Nothing is static typed so using this approach or the multiple binding's is practically the same, in my opinion.
+The `valueAccessor` parameter of the binding deserves some explanation. I think typically it's not a complex object like in my case. So far I've seen people use [multiple bindings](http://stackoverflow.com/a/11378286) to pass extra values to their binding handler. I don't think it's very clean so I just pass one object, which has multiple properties for representing all the parameters. Nothing is static typed so using this approach or the multiple binding's is practically the same, in my opinion.
 
 So now that we have our input, we read our individual parameters from it.
 
