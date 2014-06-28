@@ -14,7 +14,7 @@ I've been working with Search in SP2013 lately and maintaining search involves l
 Sadly, some of the things that the Search Administration UI shows you, like the Crawl History, do not have a direct PowerShell equivalent.
 
 After reflecting on the logic behind the page, I came up with this:
-
+```Powershell
 	$numberOfResults = 10
 	$contentSourceName = "MyContentSource"
 	
@@ -35,7 +35,7 @@ After reflecting on the logic behind the page, I came up with this:
 	}
 	
 	$labeledCrawlHistory | Out-GridView
-
+```
 Ow yes folks, **Microsoft.Office.Server.Search.Administration.CrawlLog.GetCrawlHistory** is a ***public*** method (I was almost sure I'd run into an internal one when reflecting the dll). You give it the number of results you want to get and the contentsource id (which is a simple int number actually).
 
 The first two variables are parameters further down in the script. You show the crawl log for one contentsource specifically, and you **have** to specify how many results you want to return (0 returns no results, and -1 doesn't work, as it get's parameterized directly into the SQL statement, giving you a nice error that SELECT TOP N or some such can't be negative).
