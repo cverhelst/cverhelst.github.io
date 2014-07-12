@@ -24,7 +24,7 @@ A colleague of mine experimented a little and noticed the following things:
 
 The managed properties themselves, I had to dig into the DLL's to figure that out. The AbstractProperty class has a static method call that lists the supported property types (as the actual Property types are generic Property<T> types). These are the supported properties :
 
-***csharp
+```csharp
   - Property<string>
   - Property<int>
   - Property<long>
@@ -35,7 +35,7 @@ The managed properties themselves, I had to dig into the DLL's to figure that ou
   - Property<Guid>
   - Property<byte[]>
   - And their List<T> versions (Property<List<string>>,...)
-***
+```
 Using any other type in your Content Enrichment service will compile, but will throw errors on the Search Engine side.
 
 You cannot use just any type for a specific Managed Property. If your Managed Property is registered as type bool, your enriched Property<T> will also have to be of type bool (Property<bool>). Again, an appropriate error will be logged in ULS saying that Managed Property expected to be of type T while the type returned was type Z.
