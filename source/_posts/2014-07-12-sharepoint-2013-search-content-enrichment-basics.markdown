@@ -24,7 +24,7 @@ A colleague of mine experimented a little and noticed the following things:
 
 The managed properties themselves, I had to dig into the DLL's to figure that out. The AbstractProperty class has a static method call that lists the supported property types (as the actual Property types are generic Property<T> types). These are the supported properties :
 
-```csharp
+```
   - Property<string>
   - Property<int>
   - Property<long>
