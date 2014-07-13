@@ -3,7 +3,10 @@ layout: post
 title: "KnockoutJS - AutoComplete"
 date: 2014-04-20 15:44
 comments: true
-categories: sharepoint, knockoutjs, jquery
+categories: 
+- sharepoint
+- knockoutjs
+- jquery
 ---
 
 I've been looking into Knockout JS recently and wanted to see how it could be integrated with JQuery (and JQuery.UI) to have an autocomplete field.
