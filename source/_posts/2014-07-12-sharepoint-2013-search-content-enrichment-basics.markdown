@@ -61,17 +61,25 @@ By the grace of SharePoint Search gods there might actually be a way! While refl
   - ContentProcessingEnrichmentInvalidType (Property<Z> for Managed Property T)
   - ContentProcessingEnrichmentFailedToProcessResult
 
-And if you check the flow of the code around the call to your Content Enrichment Service, he used the returned error code if one is provided. And he will log an UnknownErrorIdException if it was not registered on the singleton.
+UPDATE:
 
-So what I'm wondering now is if the Content Enrichment Service runs in the same app pool as the Search Engine (or at least the client calling our service) does. That would hopefully mean that we can register our own errror codes with this singleton and have meaningful messages in the Crawl Log.
+The error code on a ProcessedItem returned by your custom Content Enrichment Service is not the same as the ones used by the SP Search engine that will show up in the Crawl Log. I had a closer look and all that the Search Engine will do is:
+
+ - Is errorCode > 0 ?
+   - Output an Exception: Failed to process the results returned by the content processing enrichment service
+   - Output the error code in the ULS Logs.
+
+This is where FailureMode will determine whether he will throw an error or just log this as a warning.
+
+<strike>And if you check the flow of the code around the call to your Content Enrichment Service, he used the returned error code if one is provided. And he will log an UnknownErrorIdException if it was not registered on the singleton.</strike>
+
+<strike>So what I'm wondering now is if the Content Enrichment Service runs in the same app pool as the Search Engine (or at least the client calling our service) does. That would hopefully mean that we can register our own errror codes with this singleton and have meaningful messages in the Crawl Log.</strike>
 
 This would probably be done on another Class:
 
   - Microsoft.Ceres.Evaluation.Services.ErrorDefinitions.ProcessingErrors
 
 which has a concurrent dictionary of errorId mappings, which is called by the CtsProcessingErrors class in it's constructor.
-
-But that will be for another post
 
 
 
