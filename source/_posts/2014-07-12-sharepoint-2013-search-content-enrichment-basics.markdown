@@ -52,15 +52,6 @@ None of the errors will be logged as descriptively in the Crawl Log. They will m
 
 So another thing we would've liked to know is how to make the the errorcode's we can return in the web service have an associated error message (it's not recommended to actually *throw* errors, just log them and set an appropriate errorcode on the result).
 
-By the grace of SharePoint Search gods there might actually be a way! While reflecting on the DLL's of the Microsoft.Ceres.ContentProcessing.Evaluators.ContentEnrichmentClientProducer (Cameron approves of descriptive class names) I encountered a **public** static method on what seems to be a singleton instance of a sort of ErrorService:
-
-- Microsoft.Ceres.ContentEngine.Util.Exceptions.CtsProcessingErrors
-- It's full of constants pointing to the built-in error messages
-  - OperatorTimeOut
-  - DisplayAuthorFieldNotFound (you see this one in the logs a lot)
-  - ContentProcessingEnrichmentInvalidType (Property<Z> for Managed Property T)
-  - ContentProcessingEnrichmentFailedToProcessResult
-
 UPDATE:
 
 The error code on a ProcessedItem returned by your custom Content Enrichment Service is not the same as the ones used by the SP Search engine that will show up in the Crawl Log. I had a closer look and all that the Search Engine will do is:
@@ -71,11 +62,24 @@ The error code on a ProcessedItem returned by your custom Content Enrichment Ser
 
 This is where FailureMode will determine whether he will throw an error or just log this as a warning. This is important because if it throws an error the item will not end up in the search index at all.
 
+So the strategy that follows below cannot actually be used for our own error descriptors.
+
+Anything that follows is for historical purposes.
+
 END UPDATE
+
+By the grace of SharePoint Search gods there might actually be a way! While reflecting on the DLL's of the Microsoft.Ceres.ContentProcessing.Evaluators.ContentEnrichmentClientProducer (Cameron approves of descriptive class names) I encountered a **public** static method on what seems to be a singleton instance of a sort of ErrorService:
+
+- Microsoft.Ceres.ContentEngine.Util.Exceptions.CtsProcessingErrors
+- It's full of constants pointing to the built-in error messages
+  - OperatorTimeOut
+  - DisplayAuthorFieldNotFound (you see this one in the logs a lot)
+  - ContentProcessingEnrichmentInvalidType (Property<Z> for Managed Property T)
+  - ContentProcessingEnrichmentFailedToProcessResult
 
 <strike>And if you check the flow of the code around the call to your Content Enrichment Service, he used the returned error code if one is provided. And he will log an UnknownErrorIdException if it was not registered on the singleton.</strike>
 
-<strike>So what I'm wondering now is if the Content Enrichment Service runs in the same app pool as the Search Engine (or at least the client calling our service) does. That would hopefully mean that we can register our own errror codes with this singleton and have meaningful messages in the Crawl Log.</strike>
+So what I'm wondering now is if the Content Enrichment Service runs in the same app pool as the Search Engine (or at least the client calling our service) does. That would hopefully mean that we can register our own errror codes with this singleton and have meaningful messages in the Crawl Log.
 
 This would probably be done on another Class:
 
