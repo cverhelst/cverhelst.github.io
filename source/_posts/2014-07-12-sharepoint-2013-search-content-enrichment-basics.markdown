@@ -69,7 +69,9 @@ The error code on a ProcessedItem returned by your custom Content Enrichment Ser
    - Output an Exception: Failed to process the results returned by the content processing enrichment service
    - Output the error code in the ULS Logs.
 
-This is where FailureMode will determine whether he will throw an error or just log this as a warning.
+This is where FailureMode will determine whether he will throw an error or just log this as a warning. This is important because if it throws an error the item will not end up in the search index at all.
+
+END UPDATE
 
 <strike>And if you check the flow of the code around the call to your Content Enrichment Service, he used the returned error code if one is provided. And he will log an UnknownErrorIdException if it was not registered on the singleton.</strike>
 
