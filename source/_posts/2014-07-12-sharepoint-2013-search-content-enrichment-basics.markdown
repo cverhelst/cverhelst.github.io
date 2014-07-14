@@ -29,7 +29,7 @@ A colleague of mine experimented a little and noticed the following things:
 ### Returning a managed property that already has a value on the item ?
 
 ```
-Microsoft.Ceres.Evaluation.DataModel.Types.SchemaException: Cannot add field IsProspect to bucket, it already exists.
+Microsoft.Ceres.Evaluation.DataModel.Types.SchemaException: Cannot add field MyManagedPropertyName to bucket, it already exists.
 ```
 
 That would mean a solid "no". Although the disassembly has an if case that might allow you to override it, but I can't make much sense of the code to say when it would work. Seems to depend on TypeConversions.IsCompatible.
