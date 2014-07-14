@@ -72,5 +72,15 @@ None of the errors will be logged as descriptively in the Crawl Log. They will m
 
 There's no easy way to just get all the records that were touched by your Content Enrichment Service as far as I know. We've added a managed property in the sense of "IsEnrichedByMyService" of type bool and update that. This way you can also find the amound of successfully enriched items, as they don't get a seperate tab in your Crawl Log like the errors do.
 
+### Performance
+
+To quickly evaluate the performance of search calling your Content Enrichment Service you can filter ULS on:
+
+  - EventId: b4ly
+  - Message contains "Path to your Content Enrichment Servce
+
+That will show you all the "Leaving monitored scope" statements that the Search Engine outputs when calling your Content Enrichment Serivce.
+
+Remember you want to keep these as low as possible to not add to much time to the crawling. These calls are synchronous so the search engines blocks until you return from your service or the timeout is reached on every single item that passed the Content Enrichment Service trigger.
 
 
