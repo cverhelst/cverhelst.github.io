@@ -54,7 +54,25 @@ Using any other type in your Content Enrichment service will compile, but will t
 
 You cannot use just any type for a specific Managed Property. If your Managed Property is registered as type bool, your enriched Property<T> will also have to be of type bool (Property<bool>). Again, an appropriate error will be logged in ULS saying that Managed Property expected to be of type T while the type returned was type Z.
 
-### Debugging
+## Registering the web service
+
+Some errors are thrown at time of registrating the service with the PowerShell cmdlets like "Managed Property X does not exist" but the service also logs it's configuration in ULS:
+
+ - Product: SharePoint Server Search
+ - Category: Administration
+
+
+Example:
+
+```
+AddProperty: Adding property 'cp_ContentProcessingEnrichmentServiceOutputFields_0' as 'MyManagedPropertyName'.
+
+SetStringProperty: Changing property 'cp_ContentProcessingEnrichmentServiceEndpoint' from '' to 'MyContentEnrichmentServiceUrl'.
+
+SetStringProperty: Changing property 'cp_ContentProcessingEnrichmentServiceTrigger' from '' to 'MyTriggerExpression'.
+```
+
+## Debugging
 
 This is actually related to anything to do with your custom Content Enrichment Service.
 
@@ -68,7 +86,7 @@ Your service is called by an instance of Microsoft.Ceres.ContentProcessing.Evalu
 
 None of the errors will be logged as descriptively in the Crawl Log. They will merely say "Failed to process the results returned by the content processing enrichment service" or some such.
 
-### Which items were enriched ?
+## Which items were enriched ?
 
 There's no easy way to just get all the records that were touched by your Content Enrichment Service as far as I know. We've added a managed property in the sense of "IsEnrichedByMyService" of type bool and update that. This way you can also find the amound of successfully enriched items, as they don't get a seperate tab in your Crawl Log like the errors do.
 
