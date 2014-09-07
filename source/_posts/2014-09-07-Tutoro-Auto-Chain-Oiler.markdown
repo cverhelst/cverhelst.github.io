@@ -11,7 +11,7 @@ categories:
 
 ## Introduction
 
-Ever since I bought my motorcycle in Oktober 2013, I researched a lot about how to properly maintain your motorcycle. Cleaning and lubricating the chain is a big part of that.
+Ever since I bought my SV 650 in Oktober 2013, I researched a lot about how to properly maintain your motorcycle. Cleaning and lubricating the chain is a big part of that.
 
 Then came the time to apply chain lube on my motorcycle. Guh, that was a big mess. I'll admit I didn't have a rear wheel paddock stand at the time to lift it so I could move the chain while applying it, but damn, it just didn't seem very efficient either.
 
