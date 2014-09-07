@@ -71,7 +71,7 @@ Ow, apparently you also have to specifically mention to your garage that they DO
 
 So all in all, great stuff!
 
-Here's some more pictures to show how I've got it mounted on my SV 650N. The thing you have to think about most is where to put the reservoir. I attached mine on the passenger foot peg and it's kind of in the same path as where the wheel would go should the rear shock obserber be fully compressed (and if the wheel goes up that far?). But I try not to worry about it too much :).
+Here's some more pictures to show how I've got it mounted on my SV 650N. The thing you have to think about most is where to put the reservoir. I attached mine on the passenger foot peg and it's kind of in the same path as where the swing arm would go should the rear shock obserber be fully compressed (does the swing arm really go up that far?). But I haven't seen any marks of the swing arm touching or moving the reservoir yet, so I'm guessing all's good. Either way, I try not to worry about it too much :)
 
 ![Reservoir alignment](/assets/images/tutoro/resoirvoir_back.jpg "Reservoir alignment")
 
