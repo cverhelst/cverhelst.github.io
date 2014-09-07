@@ -9,6 +9,8 @@ categories:
 - oil
 ---
 
+![My SV 650N in France](/assets/images/tutoro/france.jpg "My SV 650N in France")
+
 ## Introduction
 
 Ever since I bought my SV 650 in Oktober 2013, I researched a lot about how to properly maintain your motorcycle. Cleaning and lubricating the chain is a big part of that.
@@ -21,13 +23,27 @@ I had to find something better. Then I found chain oilers, and more specifically
 
 ## Tutoro Automatic Chain Oiler
 
+![Tutoro Automatic Chain Oiler installed on SV 650N](/assets/images/tutoro/reservoir_diagonal.jpg "Tutoro Automatic Chain Oiler installed on SV 650N")
+
 The reason I went for the Tutoro and not say a Scottoiler (arguably a lot more popular) is that it's just so simple. 
 
 The automatic part means you don't have to manually close and open the valve to flow oil when riding. When the bike is not moving, it doesn't flow oil, when it is moving and hits a bump, it does flow oil. This is regulated by a weight in the reservoir that moves up & down because of bumps in the road (so there is a benefit to Belgian roads after all..) and the valve determines how much oil you flow each time it is released by the weight. Or at least, that's my understanding. With the manual oiler you would have to open and close the valve after you're done riding, I think.
 
-Notice that there's no eletrical wiring involved, or anything else that's directly connected to your motorcycle. It's a fully independent system. Installation just means fixing the reservoir (upright), running a tube to your swingarm and pointing the nozzle next to the rear sprocket (preferable at the center as shown in the pictures).
+Notice that there's no eletrical wiring involved, or anything else that's directly connected to your motorcycle. It's a fully independent system. Installation just means fixing the reservoir (upright), running a tube to your swingarm and pointing the nozzle next to the rear sprocket (preferable at the center as shown in the picture).
 
-And it does flow, a lot. I almost have it fully closed most of the time because, I guess, there's just a whole lot of bumps in the road in Belgium. I can tell when it's too much when I find specks of oil on my rim that have flinged off. Looking at the chain itself, honeslty, I couldn't tell apart from the fact that it looks wet.
+![Nozzle alignment to sprocket](/assets/images/tutoro/nozzle_sprocket.jpg "Nozzle alignment to sprocket")
+
+And it does flow, a lot. I almost have it fully closed most of the time because, I guess, there's just a whole lot of bumps in the road in Belgium. In the picture, you can see I've got the valve open just a few degrees (counter clockwise). Fully closed means having the dot at 12 o'clock.
+
+![Valve during normal operation](/assets/images/tutoro/valve_normal.jpg "Valve during normal operation")
+
+After cleaning my chain I'll do 1 ride with the valve open a  few more degrees for added lubrication, but when I did this, I ended up with the specks on my rim again, so it may not even be really necessary :).
+
+Looking at the chain itself, honestly, I couldn't tell if it's too much or just enough, only that it looks wet and when you swipe it with your finger, your finger comes of all black :).
+
+![Chain with chain oiler](/assets/images/tutoro/chain_lubed.jpg "Chain with chain oiler")
+
+![Rim with oil specks from excess chain oil](/assets/images/tutoro/rim_oil_specks.jpg "Rim with oil specks from excess chain oil")
 
 The oil that Tutoro uses is a little different than the lube you spray from a can. It's a lot more fluid, which from what I gather is better for the chain opposed to more solid lube, but it has the tendency to fling more easily, which is also why you would need something like a chain oiler to make it worthwhile.
 
@@ -55,5 +71,9 @@ Ow, apparently you also have to specifically mention to your garage that they DO
 
 So all in all, great stuff!
 
-Here's some pictures to show how I've got it mounted on my SV 650N. The thing you have to think about most is where to put the reservoir. I attached mine on the passenger foot peg and it's kind of in the same path as where the wheel would go should the rear shock obserber be fully compressed (and if the wheel goes up that far?). But I try not to worry about it too much :).
+Here's some more pictures to show how I've got it mounted on my SV 650N. The thing you have to think about most is where to put the reservoir. I attached mine on the passenger foot peg and it's kind of in the same path as where the wheel would go should the rear shock obserber be fully compressed (and if the wheel goes up that far?). But I try not to worry about it too much :).
+
+![Reservoir alignment](/assets/images/tutoro/resoirvoir_back.jpg "Reservoir alignment")
+
+![Tubes running from reservoir to swing arm](/assets/images/tutoro/tubes_side.jpg "Tubes running from reservoir to swing arm")
 
