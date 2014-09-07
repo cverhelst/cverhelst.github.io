@@ -23,7 +23,7 @@ I had to find something better. Then I found chain oilers, and more specifically
 
 The reason I went for the Tutoro and not say a Scottoiler (arguably a lot more popular) is that it's just so simple. 
 
-The automatic part means you don't have to manually close and open the valve to flow oil. This is regulated by a weight in the reservoir that moves up & down because of bumps in the road (so there is a benefit to Belgian roads after all..) and the valve determines how much oil you flow each time it is released by the weight. Or at least, that's my understanding.
+The automatic part means you don't have to manually close and open the valve to flow oil when riding. When the bike is not moving, it doesn't flow oil, when it is moving and hits a bump, it does flow oil. This is regulated by a weight in the reservoir that moves up & down because of bumps in the road (so there is a benefit to Belgian roads after all..) and the valve determines how much oil you flow each time it is released by the weight. Or at least, that's my understanding. With the manual oiler you would have to open and close the valve after you're done riding, I think.
 
 Notice that there's no eletrical wiring involved, or anything else that's directly connected to your motorcycle. It's a fully independent system. Installation just means fixing the reservoir (upright), running a tube to your swingarm and pointing the nozzle next to the rear sprocket (preferable at the center as shown in the pictures).
 
