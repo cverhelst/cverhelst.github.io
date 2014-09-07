@@ -69,9 +69,9 @@ I've also found this is a lot more economic on your oil/lube. The reservoir has 
 
 It takes about 125ml for 3500 kms (2174 miles) over 7 months time period (occasional rain) or 75ml for just 3000 kms (1864 miles) over 3 weeks time period (very little rain). The first is the refill before the tour in France and the latter is what you can see is gone after the 2400 km tour in France (not a lot of bumpy roads there) as in the picture showing the reservoir (half empty). As the pictures will show, I think my chain is lubricated enough, and maybe even a little bit too much.
 
-![Tutoro Automatic Chain Oiler installed on SV 650N](/assets/images/tutoro/reservoir_diagonal.jpg=100x "Tutoro Automatic Chain Oiler installed on SV 650N")
+![Tutoro Automatic Chain Oiler installed on SV 650N](/assets/images/tutoro/reservoir_diagonal.jpg =100x "Tutoro Automatic Chain Oiler installed on SV 650N")
 
-![Chain with chain oiler](/assets/images/tutoro/chain_lubed.jpg=100x "Chain with chain oiler")
+![Chain with chain oiler](/assets/images/tutoro/chain_lubed.jpg =100x "Chain with chain oiler")
 
 The 500ml refill costs just £6.5,  but you don't have to use theirs. The kit itself is also pretty cheap at £65 (€ 82) for the deluxe (full) package.
 
