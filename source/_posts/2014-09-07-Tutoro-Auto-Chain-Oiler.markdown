@@ -45,7 +45,7 @@ The 500ml refill costs just £6.5,  but you don't have to use theirs. The kit it
 
 ## Experience
 
-After the tour in France, my twin nozzle did lose one leg/arm. I'll admit I didn't check whether it was still aligned properly each dayn not at all actually, I only noticed when I got home :). Which brings me to another major plus for a chain oiler system. You don't have to worry about lubricating your chain while on tour / vacation!
+After the tour in France, my twin nozzle did lose one leg/arm. I'll admit I didn't check whether it was still aligned properly each day, or not at all actually, I only noticed when I got home :). Which brings me to another major plus for a chain oiler system. You don't have to worry about lubricating your chain while on tour / vacation!
 
 I have fitted the single nozzle now and we'll see how long that will hold up.
 
