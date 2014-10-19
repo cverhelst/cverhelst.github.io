@@ -40,11 +40,11 @@ I wanted to make a REST service, so I used the MultipleBaseAddressWebServiceHost
 
     <%@ServiceHost Language="C#" Debug="true"
     Service="NameSpaceOfMyService.MyServiceClassName, $SharePoint.Project.AssemblyFullName$"
-    Factory="Microsoft.SharePoint.Client.Services.MultipleBaseAddressBasicHttpBindingServiceHostFactory, Microsoft.SharePoint.Client.ServerRuntime, Version=14.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" %>
+    Factory="Microsoft.SharePoint.Client.Services.MultipleBaseAddressWebServiceHostFactory, Microsoft.SharePoint.Client.ServerRuntime, Version=14.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" %>
     
 You'll notice we're using a VS Token in this file, to configure VS to replace the token in .svc files you can [follow the instructions described on MSDN](http://msdn.microsoft.com/en-us/library/office/ff521581.aspx#code-snippet-4).
     
-For it to work correctly, you'll have to add (some extra attributes)[http://msdn.microsoft.com/en-us/library/office/ff521581.aspx#code-snippet-2] to the class implementation of your service:
+For it to work correctly, you'll have to add [some extra attributes](http://msdn.microsoft.com/en-us/library/office/ff521581.aspx#code-snippet-2) to the class implementation of your service:
 
 - BasicHttpBindingServiceMetadataExchangeEndpointAttribute
 - AspNetCompatibilityRequirements(RequirementsMode = AspNetCompatibilityRequirementsMode.Required)
