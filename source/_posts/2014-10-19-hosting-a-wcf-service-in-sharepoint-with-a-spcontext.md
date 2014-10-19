@@ -50,7 +50,70 @@ For it to work correctly, you'll have to add [some extra attributes](http://msdn
 - BasicHttpBindingServiceMetadataExchangeEndpointAttribute
 - AspNetCompatibilityRequirements(RequirementsMode = AspNetCompatibilityRequirementsMode.Required)
 
+Additionally, you can add the following attribute if you want to have the exception details shown when browsing to the service:
+
+- ServiceBehavior(IncludeExceptionDetailsInFaults=true)
+
 Once that's done you can start adding service contracts & service methods the way you normally do in WCF.
+
+### Security
+
+The webservice is callable by anybody. You will not be blocked from the service because you do not have access to the SharePoint site that you called the service from.
+
+You _WILL_ be blocked from interacting with the SharePoint Artifacts at that location if the credentials you used do not have sufficient permissions on those SharePoint Artifacts.
+
+So you're responsible for handling security outside of SharePoint interacting code. This also means any `SPSecurity.RunWithElevatedPrivileges` code blocks as they basically allow anybody to run that piece of code. Even if they're not even known inside SharePoint.
+
+### Service Methods
+
+You'll first have to create an interface with the _[ServiceContract]_ attribute on the class and _[OperationContract]_ attribute on the interface methods.
+
+Next, you can have the .svc code behind class implement this interface
+
+#### Updating SharePoint artifacts
+
+If you want your service methods to expose functionality that makes changes to SharePoint artifacts (create a list, remove a list item, update list item properties) you will run into some issues.
+
+- GET request
+  - This will give you errors regarding ["unsafe updates"](http://msdn.microsoft.com/en-us/library/office/gg552614.aspx#code-snippet-9)
+    - This is to prevent an unsuspecting user to accidently execute code with unintended consequences (because of a link that was injected somewhere in the page).
+- POST action
+  - This will give you errors because of the SharePoint Page Form Digest which helps prevent [CSRF (cross site request forgery)](http://msdn.microsoft.com/en-us/library/office/gg552614.aspx#bestpractice_crossrequest)
+    - This is to prevent a user's credentials to be used in a different domain than the page the user visited.
+
+The work arounds in these cases is to use `web.AllowUnsafeUpdates = true` and `SPUtility.ValidateFormDigest()`
+
+The truth is that for either of these, in the case of Web Service methods, you're kind of stuck. Sure, in your GET method you can set web.AllowUnsafeUpdates to true, but you don't always control the creation of the SPSite/SPWeb objects being used by the underlying SharePoint code. 
+
+The same goes for the POST method, you can go get a digest token from SharePoint and validate that before calling the webservice, but that's putting an extra burden on the client calling the service. 
+
+In essence, these security measures have been in the context of public facing sites / web services. SharePoint is often used for intranets and in my case, this is where we were developing these services for.
+
+Never trust user input. Even in intranet situations.
+
+#### GET Method
+
+Let's assume your GET method needed to do something, that `web.AllowUnsafeUpdates = true` doesn't help you do. How does SharePoint know it's a GET request ? It first checks to see if there's an SPContext... Yes, the very reason we've built our service like this was to have an SPContext in the first place. And now it's basically the reason we cannot execute our code from inside a GET request.
+
+Use case: Our situation needed to have a GET method that could be called upon a certain trigger to archive a SharePoint artifact. In this case, we could validate the conditions that would mean the artifact had to be archived inside the service method. This means any malicious use of the service could not be used, as it was just a trigger to CHECK if it needed to be archived and to then also archived it, worst case, we were gonna be doin a lot of unnecessary checks if a random person was calling the service method. 
+
+Yet, the artifact we were dealing with was a DocumentSet and the underlying code was recreating an SPSite / SPWeb object so we couldn't use the recommended method of setting `web.AllowUnsafeUpdates = true` .
+
+The workaround was to unset our SPContext, which meant SharePoint would think we were executing from an application rather than an http context, and would no longer block this action.
+
+```csharp
+    HttpContext.Current = null
+```
+
+It's probably a good idea to wrap this in an object implementing IDisposable and saving the context in a back variable so you can put it back after.
+
+#### POST Method
+
+As we saw before, the POST actions get special treatment too by means of the Form Digest token.
+
+Use case: We needed to allow a file to be upload to a predetermined library. We already know that only authorized people can do these things, both in SharePoint and from our service method. That's the only security we were gonna have on the service method. Since we were not particularly concerned for any CSRF inside our intranet, we were not gonna validate a form digest that the client had to request himself explicitly (on web pages it is served along by SharePoint for you), we were gonna disable the check.
+
+This also happens with `web.AllowUnsafeUpdates = true`. Again, we put it in a class that implemented the IDisposable interface and made sure to set it back to `false` before it was disposed.
 
 ## Creating a custom service host factory
 
