@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "SharePoint 2013 - Search - Content Enrichment - Basics"
+title: "SharePoint - Hosting a WCF service with a SPContext"
 date: 2014-10-19 15:07
 comments: true
 categories: 
@@ -9,8 +9,6 @@ categories:
 - service host factory
 - spcontext
 ---
-
-## Hosting a WCF service in SharePoint with a SPContext
 
 If you want to extend SharePoint, adding custom web services is one way to do it. There's several requirements usually, 
 and if one of them is the necessity for a SPContext, you can use the built in [SharePoint WCF Service Factories](http://msdn.microsoft.com/en-us/library/office/ff521586.aspx).
