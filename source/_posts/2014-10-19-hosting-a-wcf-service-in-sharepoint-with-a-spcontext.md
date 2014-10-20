@@ -147,9 +147,7 @@ I honestly don't know if there might be a technical reason for this, but if vani
 
 Enter: The interface that inherits from all.
 
-Yeah, apparently this works. Just have a different interface, IMyService, that inherits from all the Service Contracts you want to implement and you're done. 
-
-So, what were we making a fuss about again ? Oh right.
+Yeah, apparently this works. Just have a different interface, IMyService, that inherits from all the Service Contracts you want to implement and you're done. Because, yeah, we just need to make sure there's only one Service Contract interface on that service class. *sigh*
 
 ## Creating a custom service host factory
 
@@ -233,3 +231,9 @@ You need to call the base method first because that one will take care of creati
         }
     }
 ```
+
+### Common Error
+
+If you forgot to add the [ServiceContract] attribute to your service contract interface, you'll get an error when creating the service host (the firs time you call the service) saying something like: no service contract.
+
+Yeah, that's actually a very accurate message, for once. Still it took me a while to figure out the attribute was missing. So consider this an addition mostly for my own benefit :).
