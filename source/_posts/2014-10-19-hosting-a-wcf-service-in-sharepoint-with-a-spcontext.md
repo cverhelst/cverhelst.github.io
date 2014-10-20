@@ -97,11 +97,7 @@ Use case: Our situation needed to have a GET method that could be called upon a 
 
 Yet, the artifact we were dealing with was a DocumentSet and the underlying code was recreating an SPSite / SPWeb object so we couldn't use the recommended method of setting `web.AllowUnsafeUpdates = true` .
 
-The workaround was to unset our SPContext, which meant SharePoint would think we were executing from an application rather than an http context, and would no longer block this action.
 
-```csharp
-    HttpContext.Current = null
-```
 
 It's probably a good idea to wrap this in an object implementing IDisposable and saving the context in a back variable so you can put it back after.
 
@@ -109,9 +105,51 @@ It's probably a good idea to wrap this in an object implementing IDisposable and
 
 As we saw before, the POST actions get special treatment too by means of the Form Digest token.
 
+This is because it's almost naturally assumed that any POST request in a SharePoint context will happen from a form. Yeah right. There's no such thing like calling WCF services from outside of a web context, like, an office app ? Think again.
+
 Use case: We needed to allow a file to be upload to a predetermined library. We already know that only authorized people can do these things, both in SharePoint and from our service method. That's the only security we were gonna have on the service method. Since we were not particularly concerned for any CSRF inside our intranet, we were not gonna validate a form digest that the client had to request himself explicitly (on web pages it is served along by SharePoint for you), we were gonna disable the check.
 
-This also happens with `web.AllowUnsafeUpdates = true`. Again, we put it in a class that implemented the IDisposable interface and made sure to set it back to `false` before it was disposed.
+This also happens with `web.AllowUnsafeUpdates = true`, for some reason. In our case it was sufficient, but if not we'd had to have to use the same workaround as explained below.
+
+#### Security issues workaround
+
+The workaround was to unset our SPContext, which meant SharePoint would think we were executing from an application rather than an http context, and would no longer block changes to the SharePoint artifacts.
+
+```csharp
+    HttpContext.Current = null
+```
+
+Keep in mind I don't really approve of this trick. I just don't see a good way that was made available by SharePoint out of the box. For GET requests, the alternative isn't sufficient in some cases, for POST requests, it's just dumb to have to make 2 WCF calls to get the same thing done.
+
+But if you're aware of the risks and make sure you're prepared for any "malicious" service calls, as in, don't make your service methods to any irreversible things in case they we're executed in unintended situations, I believe it's a good alternative.
+
+### Using multiple service contracts within the same service codebehind
+
+This title may not be so clear at first. The idea is to reuse the same listenUri endpoint (base url) to host multiple service methods, that have been defined in _different_ service contracts.
+
+What does this look like in the codebehind of your .svc file (the .svc.cs file) ? Like so:
+
+```csharp
+    public class MyService : IMyServiceContractForHR, IMyServiceContractForFinance
+    {
+    
+    }
+```
+
+Pretty straight forward. Except....
+
+
+Yeah, SharePoint ofcourse. If you look in the implementation of (at least) the MultipleBaseAddressWebServiceHost you'll find that it has a method for adding the default endpoints. It even has a property especially for holding all the Service Contracts it detected that were being implemented by the service.
+
+And than it takes the first one, adds endpoints for it and call it a day.
+
+I honestly don't know if there might be a technical reason for this, but if vanilla WCF allows you to do this, than why doesn't a SharePoint specific service host factory allow you to do it ? And why in the frigging **** do they have to make it all `internal` every frigging time. I wasn't gonna bother creating the endpoints as closely to the real thing as possible (I'm no WCF expert believe it or not), which may not even be totally necessary. But you know, this whole service was tested and prepered under it's current configuration. It was meant to implement multiple contracts. It was gonna implemented multiple contracts.
+
+Enter: The interface that inherits from all.
+
+Yeah, apparently this works. Just have a different interface, IMyService, that inherits from all the Service Contracts you want to implement and you're done. 
+
+So, what were we making a fuss about again ? Oh right.
 
 ## Creating a custom service host factory
 
