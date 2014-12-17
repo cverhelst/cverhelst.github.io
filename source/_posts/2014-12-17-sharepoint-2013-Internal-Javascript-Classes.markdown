@@ -13,7 +13,7 @@ Recently, we had a very strange issue with some customization failing and blocki
 
 The customization aside, we noticed this strange difference between our SharePoint environments.
 
-![SP JS files with different content on identical servers](/path/to/img.jpg)
+![SP JS files with different content on identical servers](assets/images/sharepoint/2013/sp_tileview_js_different_properties.png)
 
 So basically, these JS files are the same, yet the obfuscated member names of the class are different across environments (not all).
 The last modified dates of the files of one server were actually different from the other, but apart from this they were the same. Our other 2 environments had the same member names as 1 of these.
