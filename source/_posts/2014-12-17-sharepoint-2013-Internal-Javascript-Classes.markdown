@@ -25,4 +25,4 @@ What I do think is more likely, is that they generate it on their side and it ge
 
 I still don't get how both environments are supposedly the same SP Farm version, but oh well.
 
-So let this be a warning if you intend to interact with these generated class (or overwrite their functionality... as our offending customization did -_-) as you can't be certain that the naming is gonna remain the same over time or be the same across environments.
+So let this be a warning if you intend to interact with these generated classes (or overwrite their functionality... as our offending customization did -_-) as you can't be certain that the naming is gonna remain the same over time or be the same across environments.
